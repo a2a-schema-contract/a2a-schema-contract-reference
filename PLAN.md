@@ -1,8 +1,10 @@
 # Reference implementation delivery plan
 
-Updated: 2026-10-07\
+Updated: 2026-10-13\
 Status: REF-001–004 and REF-010 complete for the Node candidate; Python applications remain planned
-Next gate: Python SDK-009, then SDK-010/011 and REF-005/006 with shared discovery and prepared-schema parity cases.
+LangGraph/M3b is accepted locally using installed SDK/adapter artifacts.
+ADK/M3c is accepted locally through the same SDK RC1 artifact. Python SDK-009/010/011 are accepted locally; REF-005/006 are next. Existing
+Node deterministic-consumer acceptance remains complete for its original scope.
 Companion tracking: [SDK roadmap](https://github.com/shashikanth-gs/a2a-schema-contract-sdk/blob/main/PLAN.md). Workspace milestone tracking is maintained internally.
 
 This repository demonstrates how real clients and agents use the reusable packages. It is an independent consumer and interoperability check, not a second implementation of SDK internals. The initial specification revision is pinned in [contract-source.json](contract-source.json).
@@ -99,6 +101,10 @@ Acceptance criteria:
 Evidence: Started/completed 2026-10-06 by Codex; same accepted source/artifact/runtime/hosted gates as REF-003. [Candidate report](docs/node-candidate-report.md), [operations guide](docs/node-operations.md), [verified quickstart](js/README.md), flow/scenario tutorial, exact `js/artifact-input.json` pin and machine reports. Readiness, hosts/ports, graceful shutdown and forced cleanup, body/staging/worker/resolver limits, diagnostics, exact administrator resolver policy, credential/context ownership and failure troubleshooting are documented. Independent plain-JS and compiled-TS consumers, public types/resources, full/single runners and source-to-artifact CI pass with no manual runtime source edits; 48 tests, 37 inline and 43 security scenarios, no skips. SDK-008/M3 consume this evidence; registry ownership/provenance/publication, Python parity and wider scope remain separate gates.
 
 ## REF-005: Complete Python reference applications
+
+Sequencing decision (2026-10-13): begin Python consumers after workspace M3b/M3c
+framework acceptance and the required Python SDK implementation. Carry forward
+framework-discovered shared semantics; keep framework dependencies in adapters.
 
 Outcome: independently written Python clients and agents reproduce the accepted Node scenarios.
 
