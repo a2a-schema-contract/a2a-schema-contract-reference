@@ -4,14 +4,13 @@ import asyncio
 import copy
 import json
 import os
-import signal
 import sys
 import unittest
 from pathlib import Path
 
 import httpx
 from a2a_schema_contract.client import ContractClient
-from a2a_schema_contract.core import EXTENSION_URI
+from a2a_schema_contract.core import EXTENSION_URI, ContractError
 
 CATALOG = Path(__file__).resolve().parents[2] / "fixtures" / "catalog.json"
 CONTRACT = "urn:reference:invoice:1"
@@ -39,16 +38,15 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
 
     async def asyncTearDown(self):
         await self.client.close()
+        await self.http.post(self.url + "/shutdown")
         await self.http.aclose()
-        self.process.terminate()
         try:
             await asyncio.wait_for(self.process.wait(), timeout=10)
         except TimeoutError:
             self.process.kill()
             await self.process.wait()
             self.fail("provider did not shut down")
-        # Uvicorn completes lifespan shutdown, then re-raises the captured signal.
-        self.assertIn(self.process.returncode, (0, -signal.SIGTERM))
+        self.assertEqual(self.process.returncode, 0)
 
     def prepare(self, **kwargs):
         return self.client.prepare(
@@ -90,6 +88,79 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         result = await self.client.invoke(self.prepare())
         self.assertTrue(result.payload.present)
         self.assertEqual(result.payload.value, {"total": 21, "label": None})
+
+    async def test_dishonest_peer_cannot_publish_invalid_result(self):
+        # Reuse the actual agent's card, but independently construct the JSON-RPC
+        # response a dishonest peer might send. The client must validate wire data.
+        card = (await self.http.get(self.url + "/.well-known/agent-card.json")).json()
+        for mutation in (
+            "valid",
+            "invalid-value",
+            "wrong-contract",
+            "missing-primary",
+            "bad-json",
+        ):
+            marker = {
+                "role": "primary",
+                "contractId": CONTRACT,
+                "direction": "output",
+                "representationId": "rich",
+            }
+            part = {
+                "data": {"total": 21, "label": None},
+                "mediaType": "application/json",
+                "metadata": {EXTENSION_URI: marker},
+            }
+            if mutation == "invalid-value":
+                part["data"]["total"] = -1
+            elif mutation == "wrong-contract":
+                marker["contractId"] = "urn:other:1"
+            elif mutation == "missing-primary":
+                del part["metadata"]
+            task = {
+                "id": "task",
+                "contextId": "context",
+                "status": {"state": "TASK_STATE_COMPLETED"},
+                "metadata": {
+                    EXTENSION_URI: {
+                        "contractId": CONTRACT,
+                        "outputRepresentationId": "rich",
+                    }
+                },
+                "artifacts": [{"artifactId": "output", "parts": [part]}],
+            }
+
+            def reply(request, mutation=mutation, task=task):
+                if request.method == "GET":
+                    return httpx.Response(200, json=card)
+                if mutation == "bad-json":
+                    return httpx.Response(200, content=b'{"jsonrpc":')
+                wire = json.loads(request.content)
+                return httpx.Response(
+                    200,
+                    json={"jsonrpc": "2.0", "id": wire["id"], "result": {"task": task}},
+                )
+
+            async with (
+                httpx.AsyncClient(transport=httpx.MockTransport(reply)) as fake_http,
+                await ContractClient.discover(
+                    self.url, http_client=fake_http
+                ) as client,
+            ):
+                invocation = client.prepare(
+                    CONTRACT,
+                    input=INVOICE,
+                    input_representation_id="json",
+                    accepted_output_representation_ids=["rich"],
+                    task_id="task",
+                    context_id="context",
+                )
+                if mutation == "valid":
+                    result = await client.invoke(invocation)
+                    self.assertEqual(result.payload.value, {"total": 21, "label": None})
+                else:
+                    with self.assertRaises(ContractError, msg=mutation):
+                        await client.invoke(invocation)
 
 
 if __name__ == "__main__":

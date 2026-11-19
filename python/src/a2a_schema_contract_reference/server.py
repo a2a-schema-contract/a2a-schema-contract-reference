@@ -5,7 +5,9 @@ import asyncio
 import json
 import os
 import socket
+import ssl
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import uvicorn
 from a2a.server.agent_execution import AgentExecutor, RequestContext
@@ -20,6 +22,7 @@ from a2a.types import (
 )
 from a2a_schema_contract.core import EXTENSION_URI
 from a2a_schema_contract.http import create_app
+from a2a_schema_contract.resolver import ContractResolver
 from a2a_schema_contract.server import ContractServer, output_artifact, output_message
 from google.protobuf.json_format import MessageToDict, ParseDict
 from starlette.responses import JSONResponse
@@ -218,8 +221,47 @@ class ReferenceAgent(AgentExecutor):
         return
 
 
-async def serve(catalog_path: Path, host: str, port: int) -> None:
+async def serve(
+    catalog_path: Path,
+    host: str,
+    port: int,
+    *,
+    fixture_origin: str | None = None,
+    fixture_ca: Path | None = None,
+    fixture_pins: Path | None = None,
+) -> None:
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    resolver = None
+    if fixture_origin is not None:
+        if fixture_ca is None or fixture_pins is None:
+            raise ValueError("External fixture requires both CA and integrity pins")
+        # Test-only explicit trust of the loopback TLS fixture. Production hosts
+        # must supply their own origin, address, credential and trust policies.
+        fixture_url = urlsplit(fixture_origin)
+        if (
+            fixture_url.scheme != "https"
+            or fixture_url.hostname != "127.0.0.1"
+            or fixture_url.username is not None
+            or fixture_url.password is not None
+            or fixture_url.port is None
+            or fixture_url.path
+            or fixture_url.query
+            or fixture_url.fragment
+        ):
+            raise ValueError("External fixture origin must use loopback HTTPS")
+        tls = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        tls.load_verify_locations(cafile=str(fixture_ca))
+        resolver = ContractResolver(
+            tls=tls,
+            allowed_origins=(fixture_origin,),
+            allowed_addresses={"127.0.0.1": ("127.0.0.1",)},
+            resource_integrity=json.loads(fixture_pins.read_text(encoding="utf-8")),
+        )
+        try:
+            catalog = await resolver.resolve_catalog(catalog, origin="local")
+        except BaseException:
+            await resolver.close()
+            raise
     listener = socket.socket()
     listener.bind((host, port))
     base = f"http://{host}:{listener.getsockname()[1]}"
@@ -253,6 +295,14 @@ async def serve(catalog_path: Path, host: str, port: int) -> None:
         if (
             executor.evidence_enabled
             and scope["type"] == "http"
+            and scope["path"] == "/shutdown"
+            and scope["method"] == "POST"
+        ):
+            await JSONResponse({"stopping": True})(scope, receive, send)
+            server.should_exit = True
+        elif (
+            executor.evidence_enabled
+            and scope["type"] == "http"
             and scope["path"] == "/evidence"
         ):
             response = JSONResponse(
@@ -280,6 +330,8 @@ async def serve(catalog_path: Path, host: str, port: int) -> None:
             await serving
         listener.close()
         await boundary.close()
+        if resolver is not None:
+            await resolver.close()
 
 
 def main() -> None:
@@ -287,8 +339,20 @@ def main() -> None:
     parser.add_argument("--catalog", type=Path, required=True)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=0)
+    parser.add_argument("--fixture-origin")
+    parser.add_argument("--fixture-ca", type=Path)
+    parser.add_argument("--fixture-pins", type=Path)
     args = parser.parse_args()
-    asyncio.run(serve(args.catalog, args.host, args.port))
+    asyncio.run(
+        serve(
+            args.catalog,
+            args.host,
+            args.port,
+            fixture_origin=args.fixture_origin,
+            fixture_ca=args.fixture_ca,
+            fixture_pins=args.fixture_pins,
+        )
+    )
 
 
 if __name__ == "__main__":

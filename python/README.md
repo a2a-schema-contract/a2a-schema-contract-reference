@@ -2,10 +2,10 @@
 
 The initial Python client can run explicitly selected HTTP success scenarios from
 the shared manifest against a running reference agent. Install a built Python SDK
-wheel with its `a2a` extra, then install this project into the same environment:
+wheel and this project into the same environment:
 
 ```sh
-python -m pip install '/path/to/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl[a2a]' .
+python -m pip install '/path/to/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl[server]' .
 python -m a2a_schema_contract_reference.client http://127.0.0.1:PORT \
   --manifest ../fixtures/scenarios.json --scenario invoice-json-discovery \
   --scenario invoice-compact-selection
@@ -19,8 +19,8 @@ REFERENCE_EVIDENCE=1 python -m a2a_schema_contract_reference.server \
 ```
 
 It prints a JSON readiness record containing its loopback URL. With the explicit
-test-only `REFERENCE_EVIDENCE=1` flag, `/evidence` reports execution counts and
-metadata used by the scenarios, and request metadata can select test behavior.
+test-only `REFERENCE_EVIDENCE=1` flag, `/evidence` reports execution counts,
+`POST /shutdown` requests graceful shutdown, and request metadata selects test behavior.
 Do not expose this test mode or use the unauthenticated reference server for
 production traffic. SIGINT or SIGTERM shuts down the provider.
 
@@ -31,13 +31,16 @@ wheel and this package:
 python -m unittest discover -s tests -v
 ```
 
-These tests exercise real loopback HTTP with an invalid wire input, deliberately
-invalid provider output and a valid control. They do not establish the full
-cross-platform or interoperability profile. Python requires an explicit output
-choice when discovery offers alternatives; whether that differs from the Node
-profile is being assessed by REF-006. REF-005/006 remain incomplete.
+These checks exercise real loopback HTTP, invalid wire input and output, four
+dishonest peer responses with a valid control, and verified loopback TLS with
+integrity-pinned transitive schemas, offline use and a wrong-pin refusal. The
+`--fixture-origin`, `--fixture-ca` and `--fixture-pins` provider options are
+explicitly restricted to this loopback test fixture, not production trust policy.
 
-The initial local checks used CPython 3.12.13 on macOS arm64 and a noneditable
-SDK `0.1.0.dev0` wheel with SHA-256
-`98bfa08660e814215c8e343fc67d05e91c62e96607d01854bfe9ecacce1a2f22`.
-Other supported SDK interpreters and platforms have not yet been verified here.
+On macOS arm64, five test methods passed in separate noneditable wheel consumers
+on CPython 3.11.15, 3.12.13, 3.13.14 and 3.14.10. The SDK wheel SHA-256 was
+`950d5830ddcb92ed525580df9b426754957284ca23b45a48f4cbfaf080ba07ab` and
+reference wheel SHA-256 was
+`d5a347d533382986e710bf356709e3ecd169c82fe6939c94603ed55c2a8ad613`.
+These checks do not establish the full cross-platform or interoperability profile;
+REF-005/006 remain incomplete.
