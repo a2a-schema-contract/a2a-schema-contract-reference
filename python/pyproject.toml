@@ -4,8 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a2a-schema-contract-reference"
-version = "0.0.0"
-description = "Scaffold for Python clients and agents consuming the Schema Contract SDK"
+version = "0.1.0.dev0"
+description = "Independent Python applications consuming the Schema Contract SDK"
+requires-python = ">=3.11,<3.15"
+dependencies = ["a2a-schema-contract[server]==0.1.0.dev0", "uvicorn==0.42.0"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
