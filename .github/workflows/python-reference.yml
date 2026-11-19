@@ -34,12 +34,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: ubuntu-latest, python: "3.11"}
-          - {os: ubuntu-latest, python: "3.12"}
-          - {os: ubuntu-latest, python: "3.13"}
-          - {os: ubuntu-latest, python: "3.14"}
-          - {os: macos-latest, python: "3.14"}
-          - {os: windows-latest, python: "3.14"}
+          - { os: ubuntu-latest, python: "3.11" }
+          - { os: ubuntu-latest, python: "3.12" }
+          - { os: ubuntu-latest, python: "3.13" }
+          - { os: ubuntu-latest, python: "3.14" }
+          - { os: macos-latest, python: "3.14" }
+          - { os: windows-latest, python: "3.14" }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
