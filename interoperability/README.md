@@ -41,3 +41,19 @@ inability to represent root JSON null. Python's SDK accepts root null, so the
 same expectation is not valid for both clients. The full unmodified manifest
 currently reports this difference as a failure; it is not a shared-profile
 pass, and the failure must not be omitted from a parity claim.
+
+The retained macOS arm64 CPython 3.12.13 runs on Node 22.23.3 and 24.21.0 are
+in [reports](reports/). Both ran all 37 manifest scenarios in all four pairings
+against SDK source `208a3ca` and reference source `14866cc`. Node→Node and
+Node→Python passed 37 each; Python→Node and Python→Python passed 36 each. For
+`root-null-refused`, Node clients refuse locally as the fixture expects; the
+Python client represents root null. Against the Node server the request is
+rejected at the carrier boundary; against the Python server the request succeeds.
+That difference is outside the shared carrier profile and remains a reported
+failure in these full-manifest reports. The reports omit local absolute import
+paths and error traces; they retain individual outcomes and verified SDK hashes.
+
+These reports describe a local development artifact, not a release gate: the
+interpreter/OS matrix and the external-resource, cancellation, adversarial,
+discovery and clean-consumer checks listed above remain outstanding. Server
+shutdown on Windows also needs a verified graceful-control path.
