@@ -44,3 +44,18 @@ reference wheel SHA-256 was
 `d5a347d533382986e710bf356709e3ecd169c82fe6939c94603ed55c2a8ad613`.
 These checks do not establish the full cross-platform or interoperability profile;
 REF-005/006 remain incomplete.
+
+For a clean consumer outside the checkout, build the SDK and reference wheels,
+then run the following from the repository root with `uv` on the path:
+
+```sh
+python python/scripts/check_installed.py \
+  --sdk-wheel /path/to/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl \
+  --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl
+```
+
+The script checks the SDK hash recorded in `python/artifact-input.json`, installs
+both wheels in a fresh temporary environment, copies only tests and fixtures,
+and reports wheel hashes and the interpreter. The configured GitHub workflow
+rebuilds the pinned SDK source and runs this check across Linux, macOS and Windows;
+the configuration alone is not evidence of a hosted pass.

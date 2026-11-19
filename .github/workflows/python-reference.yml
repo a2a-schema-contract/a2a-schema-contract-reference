@@ -1,0 +1,39 @@
+name: Python reference installed consumers
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference:
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: "3.11"}
+          - {os: ubuntu-latest, python: "3.12"}
+          - {os: ubuntu-latest, python: "3.13"}
+          - {os: ubuntu-latest, python: "3.14"}
+          - {os: macos-latest, python: "3.14"}
+          - {os: windows-latest, python: "3.14"}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: shashikanth-gs/a2a-schema-contract-sdk
+          ref: 208a3ca3d6f9b05b83e89fc9e05418b138892d07
+          path: .sdk-source
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: "0.12.1"
+      - run: uv build --wheel
+        working-directory: .sdk-source/python
+      - run: uv build --wheel
+        working-directory: python
+      - run: python python/scripts/check_installed.py --sdk-wheel .sdk-source/python/dist/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl
