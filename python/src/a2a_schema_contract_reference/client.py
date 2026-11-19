@@ -10,6 +10,22 @@ from a2a_schema_contract.client import ContractClient
 from a2a_schema_contract.core import EXTENSION_URI, ContractError
 
 
+def json_equal(actual, expected):
+    """Compare JSON values without treating booleans as numbers."""
+    if isinstance(actual, bool) or isinstance(expected, bool):
+        return type(actual) is type(expected) and actual == expected
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            json_equal(actual[key], expected[key]) for key in expected
+        )
+    if isinstance(actual, list) and isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            json_equal(left, right)
+            for left, right in zip(actual, expected, strict=True)
+        )
+    return actual == expected
+
+
 async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
     invocation, expected = scenario["invocation"], scenario["expected"]
     kwargs = {}
@@ -94,7 +110,7 @@ async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
                 raise AssertionError("result contract identity mismatch")
             if payload.present:
                 if (
-                    payload.value != expected["value"]
+                    not json_equal(payload.value, expected["value"])
                     or payload.representation_id != expected["representationId"]
                 ):
                     raise AssertionError("unexpected payload value or representation")
