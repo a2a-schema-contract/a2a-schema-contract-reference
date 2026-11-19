@@ -56,6 +56,10 @@ python python/scripts/check_installed.py \
 
 The script checks the SDK hash recorded in `python/artifact-input.json`, installs
 both wheels in a fresh temporary environment, copies only tests and fixtures,
-and reports wheel hashes and the interpreter. The configured GitHub workflow
-rebuilds the pinned SDK source and runs this check across Linux, macOS and Windows;
-the configuration alone is not evidence of a hosted pass.
+and reports wheel hashes and the interpreter. The configured GitHub workflow builds
+the pinned SDK source once on Linux and checks the same wheel on Linux, macOS and
+Windows. Platform builds contain identical files but do not have identical ZIP
+bytes, so this does not claim reproducible cross-platform wheel hashes. The workflow
+also checks formatting, lint and strict types for application modules and the
+installed-consumer script; tests are not included in the strict type check. The
+configuration alone is not evidence of a hosted pass.

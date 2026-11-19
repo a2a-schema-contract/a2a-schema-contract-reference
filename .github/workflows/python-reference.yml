@@ -6,7 +6,29 @@ on:
 permissions:
   contents: read
 jobs:
+  sdk-wheel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: shashikanth-gs/a2a-schema-contract-sdk
+          ref: 208a3ca3d6f9b05b83e89fc9e05418b138892d07
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: "0.12.1"
+      - run: uv build --wheel
+        working-directory: python
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pinned-sdk-wheel
+          path: python/dist/*.whl
+          if-no-files-found: error
   reference:
+    needs: sdk-wheel
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -21,11 +43,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
-          repository: shashikanth-gs/a2a-schema-contract-sdk
-          ref: 208a3ca3d6f9b05b83e89fc9e05418b138892d07
-          path: .sdk-source
+          name: pinned-sdk-wheel
+          path: .sdk-artifact
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: ${{ matrix.python }}
@@ -33,17 +54,14 @@ jobs:
         with:
           version: "0.12.1"
       - run: uv build --wheel
-        working-directory: .sdk-source/python
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: sdk-wheel-${{ matrix.os }}-${{ matrix.python }}
-          path: |
-            .sdk-source/python/dist/*.whl
-            .sdk-source/python/src/
-            .sdk-source/python/README.md
-            .sdk-source/python/LICENSE
-            .sdk-source/python/pyproject.toml
-          if-no-files-found: error
-      - run: uv build --wheel
         working-directory: python
-      - run: python python/scripts/check_installed.py --sdk-wheel .sdk-source/python/dist/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl
+      - name: Install quality tools and exact consumer artifacts
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        run: uv pip install --system .sdk-artifact/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl mypy==2.4.0 ruff==0.17.0 types-protobuf==7.35.1.20260906 types-jsonschema==4.26.0.20261006
+      - name: Formatting, lint and strict application types
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        run: |
+          ruff format --check python/src python/tests python/scripts
+          ruff check python/src python/tests python/scripts
+          python -m mypy --strict python/src/a2a_schema_contract_reference python/scripts/check_installed.py
+      - run: python python/scripts/check_installed.py --sdk-wheel .sdk-artifact/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl

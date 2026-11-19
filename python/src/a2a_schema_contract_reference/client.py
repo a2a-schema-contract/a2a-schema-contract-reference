@@ -4,13 +4,14 @@ import argparse
 import asyncio
 import json
 from pathlib import Path
+from typing import Any
 
 import httpx
 from a2a_schema_contract.client import ContractClient
 from a2a_schema_contract.core import EXTENSION_URI, ContractError
 
 
-def json_equal(actual, expected):
+def json_equal(actual: object, expected: object) -> bool:
     """Compare JSON values without treating booleans as numbers."""
     if isinstance(actual, bool) or isinstance(expected, bool):
         return type(actual) is type(expected) and actual == expected
@@ -26,9 +27,17 @@ def json_equal(actual, expected):
     return actual == expected
 
 
-async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
+def object_dict(value: object) -> dict[str, Any]:
+    if not isinstance(value, dict) or not all(isinstance(key, str) for key in value):
+        raise AssertionError("expected a JSON object")
+    return value
+
+
+async def run(
+    url: str, scenario: dict[str, Any], explicit_default: bool = False
+) -> dict[str, Any]:
     invocation, expected = scenario["invocation"], scenario["expected"]
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if "input" in invocation:
         kwargs["input"] = invocation["input"]["value"]
         kwargs["input_representation_id"] = invocation["input"]["representationId"]
@@ -66,7 +75,7 @@ async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
                     result = results[0]
                 elif scenario.get("transport") == "continuation":
                     first = await client.invoke(prepared)
-                    initial = first.response.value
+                    initial = object_dict(first.response.value)
                     if (
                         initial["status"]["state"] != "TASK_STATE_INPUT_REQUIRED"
                         or first.payload is not None
@@ -79,8 +88,8 @@ async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
                         client.prepare(invocation["contractId"], **kwargs)
                     )
                     if (
-                        result.response.value["id"],
-                        result.response.value["contextId"],
+                        object_dict(result.response.value)["id"],
+                        object_dict(result.response.value)["contextId"],
                     ) != (initial["id"], initial["contextId"]):
                         raise AssertionError("continuation changed task identity")
                 else:
@@ -104,7 +113,7 @@ async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
             payload = result.payload
             if payload is None or payload.present != expected["present"]:
                 raise AssertionError("unexpected payload presence")
-            response = result.response.value
+            response = object_dict(result.response.value)
             metadata = response.get("metadata", {}).get(EXTENSION_URI, {})
             if metadata.get("contractId") != invocation["contractId"]:
                 raise AssertionError("result contract identity mismatch")
@@ -116,7 +125,9 @@ async def run(url: str, scenario: dict, explicit_default: bool = False) -> dict:
                     raise AssertionError("unexpected payload value or representation")
                 if metadata.get("outputRepresentationId") != payload.representation_id:
                     raise AssertionError("result representation identity mismatch")
-                if payload.part.value.get("metadata", {}).get(EXTENSION_URI) != {
+                if object_dict(payload.part.value).get("metadata", {}).get(
+                    EXTENSION_URI
+                ) != {
                     "contractId": invocation["contractId"],
                     "direction": "output",
                     "representationId": payload.representation_id,

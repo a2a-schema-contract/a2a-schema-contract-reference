@@ -26,6 +26,7 @@ from a2a_schema_contract.resolver import ContractResolver
 from a2a_schema_contract.server import ContractServer, output_artifact, output_message
 from google.protobuf.json_format import MessageToDict, ParseDict
 from starlette.responses import JSONResponse
+from starlette.types import Receive, Scope, Send
 
 
 class ReferenceAgent(AgentExecutor):
@@ -79,9 +80,21 @@ class ReferenceAgent(AgentExecutor):
             if contract_id == "urn:reference:invoice:1":
                 input_value = execution.input
                 if isinstance(input_value, str):
-                    total, label = int(input_value or "0"), None
+                    total: int | float = int(input_value or "0")
+                    label = None
                 elif isinstance(input_value, dict):
-                    total = input_value["quantity"] * input_value["unitPrice"]
+                    quantity, unit_price = (
+                        input_value["quantity"],
+                        input_value["unitPrice"],
+                    )
+                    if (
+                        isinstance(quantity, bool)
+                        or not isinstance(quantity, (int, float))
+                        or isinstance(unit_price, bool)
+                        or not isinstance(unit_price, (int, float))
+                    ):
+                        raise TypeError("Expected invoice numbers")
+                    total = quantity * unit_price
                     label = input_value["label"]
                 else:
                     raise ValueError("Expected invoice input")
@@ -291,7 +304,7 @@ async def serve(
     executor.boundary = boundary
     app = create_app(boundary)
 
-    async def with_evidence(scope, receive, send):
+    async def with_evidence(scope: Scope, receive: Receive, send: Send) -> None:
         if (
             executor.evidence_enabled
             and scope["type"] == "http"
