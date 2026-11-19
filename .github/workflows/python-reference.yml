@@ -34,6 +34,16 @@ jobs:
           version: "0.12.1"
       - run: uv build --wheel
         working-directory: .sdk-source/python
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sdk-wheel-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            .sdk-source/python/dist/*.whl
+            .sdk-source/python/src/
+            .sdk-source/python/README.md
+            .sdk-source/python/LICENSE
+            .sdk-source/python/pyproject.toml
+          if-no-files-found: error
       - run: uv build --wheel
         working-directory: python
       - run: python python/scripts/check_installed.py --sdk-wheel .sdk-source/python/dist/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl
