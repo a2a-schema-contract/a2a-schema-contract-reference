@@ -1,7 +1,7 @@
 # Python reference implementation
 
-The initial Python client can run explicitly selected HTTP success scenarios from
-the shared manifest against a running reference agent. Install a built Python SDK
+The Python client runs selected scenarios from the shared manifest against a
+running reference agent in evidence mode. Install a built Python SDK
 wheel and this project into the same environment:
 
 ```sh
@@ -23,6 +23,20 @@ test-only `REFERENCE_EVIDENCE=1` flag, `/evidence` reports execution counts,
 `POST /shutdown` requests graceful shutdown, and request metadata selects test behavior.
 Do not expose this test mode or use the unauthenticated reference server for
 production traffic. SIGINT or SIGTERM shuts down the provider.
+
+The provider owns a loopback listener, SDK validation workers and its in-memory
+task store. Start it in a separate process and use the URL from its readiness
+record; the default port is selected by the OS. It drains and closes SDK state
+on shutdown. Tests use `POST /shutdown` only with evidence mode enabled. The
+fixture server does not provide authentication, authorization, durable task
+storage or production monitoring; a host must supply those capabilities.
+
+If discovery fails, check the readiness URL and confirm the Python SDK wheel is
+installed with the `server` extra. External-resource fixture failures should be
+checked against the exact trusted origin, fixture CA and resource integrity pins;
+an arbitrary loopback address or an unpinned document is refused. A canceled
+local client operation does not itself request remote task cancellation; use the
+SDK's explicit cancellation operation when that behavior is required.
 
 Run the provider's admission and publication controls after installing the SDK
 wheel and this package:
