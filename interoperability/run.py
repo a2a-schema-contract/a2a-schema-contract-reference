@@ -32,6 +32,8 @@ def run(args):
         if args.discovery
         else ["dishonest-output"]
         if args.dishonest
+        else ["external-transitive"]
+        if args.external_config
         else [item["id"] for item in manifest["scenarios"]]
     )
     catalog_path = ROOT / "fixtures/flight-catalog.json" if args.discovery else CATALOG
@@ -48,6 +50,8 @@ def run(args):
             if args.discovery
             else "dishonest-output-v1"
             if args.dishonest
+            else "external-transitive-v1"
+            if args.external_config
             else manifest["profile"]
         ),
         "manifest_sha256": digest(manifest_path),
@@ -122,6 +126,13 @@ def run(args):
                 )
     report["python_sdk_wheel_sha256"] = digest(args.python_wheel)
     report["node_sdk_tarball_sha256"] = digest(args.node_artifact)
+    external = (
+        json.loads(args.external_config.read_text()) if args.external_config else None
+    )
+    if external:
+        report["external_catalog_sha256"] = {
+            side: digest(Path(external[side]["catalog"])) for side in ("node", "python")
+        }
     for server in ("node", "python"):
         for client in ("node", "python"):
             command = (
@@ -132,10 +143,29 @@ def run(args):
                     "-m",
                     "a2a_schema_contract_reference.server",
                     "--catalog",
-                    str(catalog_path),
+                    str(
+                        Path(external[server]["catalog"]) if external else catalog_path
+                    ),
                 ]
             )
+            if external and server == "python":
+                config = external[server]
+                command.extend(
+                    [
+                        "--fixture-origin",
+                        config["origin"],
+                        "--fixture-ca",
+                        config["ca"],
+                        "--fixture-pins",
+                        config["pins"],
+                    ]
+                )
             env = {**clean_env, "REFERENCE_EVIDENCE": "1", "REFERENCE_PORT": "0"}
+            if external and server == "node":
+                config = external[server]
+                env["REFERENCE_CATALOG_JSON"] = Path(config["catalog"]).read_text()
+                env["REFERENCE_RESOLVER_ORIGIN"] = config["origin"]
+                env["REFERENCE_RESOLVER_PINS_JSON"] = Path(config["pins"]).read_text()
             if args.discovery:
                 env["REFERENCE_CATALOG_JSON"] = catalog_path.read_text()
                 env["REFERENCE_SKILLS_JSON"] = (
@@ -205,6 +235,21 @@ def run(args):
                             args.python,
                             str(ROOT / "interoperability/dishonest_python.py"),
                             ready["url"],
+                        ]
+                    elif external:
+                        config = external[server]
+                        script = (
+                            ROOT / "js/src/client/external-parity.mjs"
+                            if client == "node"
+                            else ROOT / "interoperability/external_python.py"
+                        )
+                        call = [
+                            args.node if client == "node" else args.python,
+                            str(script),
+                            ready["url"],
+                            config["origin"],
+                            config["ca"],
+                            config["pins"],
                         ]
                     elif client == "node":
                         call = [
@@ -314,6 +359,9 @@ if __name__ == "__main__":
     )
     profiles.add_argument(
         "--dishonest", action="store_true", help="Run dishonest-output profile"
+    )
+    profiles.add_argument(
+        "--external-config", type=Path, help="Run loopback external-schema profile"
     )
     parser.add_argument(
         "--scenario",

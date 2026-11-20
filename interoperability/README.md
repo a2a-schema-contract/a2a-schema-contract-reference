@@ -46,13 +46,18 @@ cover all security and interoperability requirements.
 SDK and reference wheels and the Node tarball, verifies installed package bytes,
 and runs generated cases. `--cancellation-report` and `--discovery-report` add the
 other profiles; `--dishonest-report` adds a tampered response check that requires
-both clients to reject invalid output from both servers. The generated-parity GitHub workflow configures these checks for
+both clients to reject invalid output from both servers. `--external-report`
+uses a loopback HTTPS fixture and checks a pinned, transitive schema graph,
+offline prepared resources, and refusal of a bad transitive pin without dispatch
+in all four pairings. The generated-parity GitHub workflow configures these checks for
 Linux Node 22/24 with Python 3.12; check actual workflow results before claiming
 hosted coverage. The three local reports from November 20 record successful runs
 of these profiles with Node 24.21.0 and Python 3.12.13, SDK `e3b2e9b` and reference
 wheel SHA-256 `108855d6b223b88a7806ec6fe2e0ce82c3bd89824db642e904e20bf9b0918da8`.
 The subsequent dishonest-output report used reference wheel SHA-256
 `f6cbd5ef431c5e9555a55b4faa83836c0952c8bc1eb0db7600a5c9976a06bca2`.
+The external-resource report uses the same wheel and SDK bytes; it is local
+evidence only until its hosted workflow completes.
 
 The existing `root-null-refused` fixture reflects the Node 1.3.0 carrier's
 inability to represent root JSON null. Python's SDK accepts root null, so the
@@ -72,7 +77,8 @@ failure in these full-manifest reports. The reports omit local absolute import
 paths and error traces; they retain individual outcomes and verified SDK hashes.
 
 These reports describe a local development artifact, not a release gate: broader
-interpreter/OS coverage and four-pairing external-resource, disconnect
-cancellation, broader malformed-peer cases, generated-case breadth and external discovery checks
+interpreter/OS coverage and four-pairing disconnect cancellation, broader
+malformed-peer cases, generated-case breadth and external catalog advertisement
+and skill-discovery checks
 remain outstanding. Server shutdown on Windows also needs a verified
 graceful-control path.

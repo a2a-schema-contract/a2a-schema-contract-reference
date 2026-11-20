@@ -55,6 +55,7 @@ jobs:
           --cancellation-report "$RUNNER_TEMP/cancellation-parity.json"
           --discovery-report "$RUNNER_TEMP/discovery-parity.json"
           --dishonest-report "$RUNNER_TEMP/dishonest-parity.json"
+          --external-report "$RUNNER_TEMP/external-parity.json"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -64,4 +65,5 @@ jobs:
             ${{ runner.temp }}/cancellation-parity.json
             ${{ runner.temp }}/discovery-parity.json
             ${{ runner.temp }}/dishonest-parity.json
+            ${{ runner.temp }}/external-parity.json
           if-no-files-found: warn

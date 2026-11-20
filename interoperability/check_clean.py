@@ -24,6 +24,7 @@ def main():
     parser.add_argument("--cancellation-report", type=Path)
     parser.add_argument("--discovery-report", type=Path)
     parser.add_argument("--dishonest-report", type=Path)
+    parser.add_argument("--external-report", type=Path)
     args = parser.parse_args()
     sdk, reference, tarball, node, report = (
         path.resolve()
@@ -128,10 +129,20 @@ def main():
                 reports.append((args.discovery_report.resolve(), ["--discovery"]))
             if args.dishonest_report:
                 reports.append((args.dishonest_report.resolve(), ["--dishonest"]))
+            if args.external_report:
+                reports.append((args.external_report.resolve(), ["--external-driver"]))
             failed = False
             for output, options in reports:
+                command = base
+                if options == ["--external-driver"]:
+                    command = [
+                        base[0],
+                        "interoperability/external_fixture.py",
+                        *base[2:],
+                    ]
+                    options = []
                 completed = subprocess.run(
-                    [*base, *options, "--report", str(output)],
+                    [*command, *options, "--report", str(output)],
                     cwd=consumer,
                     env=env,
                     check=False,

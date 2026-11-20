@@ -16,7 +16,7 @@ import { createContractResolver } from 'a2a-schema-contract/resolver';
 import type { DiagnosticEvent } from 'a2a-schema-contract/operations';
 import { agentCardHandler, jsonRpcHandler, UserBuilder } from '@a2a-js/sdk/server/express';
 import { toJsonRpcError } from '@a2a-js/sdk/errors';
-import { EXTENSION_URI, type JsonValue } from 'a2a-schema-contract/core';
+import { EXTENSION_URI, type Integrity, type JsonValue } from 'a2a-schema-contract/core';
 import {
   createContractServer,
   outputArtifact,
@@ -45,6 +45,14 @@ const resolver = fixtureOrigin
       ca: await readFile(new URL('../../../fixtures/tls/cert.pem', import.meta.url)),
       lookup: () => Promise.resolve([{ address: '127.0.0.1', family: 4 }]),
       allowAddress: (address, hostname) => address === '127.0.0.1' && hostname === 'catalog.test',
+      ...(process.env.REFERENCE_RESOLVER_PINS_JSON
+        ? {
+            resourceIntegrity: JSON.parse(process.env.REFERENCE_RESOLVER_PINS_JSON) as Record<
+              string,
+              Integrity
+            >,
+          }
+        : {}),
     })
   : undefined;
 const externalReference =
