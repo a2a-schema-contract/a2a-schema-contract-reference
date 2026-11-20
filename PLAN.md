@@ -1,9 +1,9 @@
 # Reference implementation delivery plan
 
-Updated: 2026-10-13\
-Status: REF-001–004 and REF-010 complete for the Node candidate; Python applications remain planned
+Updated: 2026-11-20\
+Status: REF-001–004 and REF-010 complete for the Node candidate; REF-005/006 in progress
 LangGraph/M3b is accepted locally using installed SDK/adapter artifacts.
-ADK/M3c is accepted locally through the same SDK RC1 artifact. Python SDK-009/010/011 are accepted locally; REF-005/006 are next. Existing
+ADK/M3c is accepted locally through the same SDK RC1 artifact. Python SDK-009/010/011 are accepted locally; REF-005/006 are underway. Existing
 Node deterministic-consumer acceptance remains complete for its original scope.
 Companion tracking: [SDK roadmap](https://github.com/shashikanth-gs/a2a-schema-contract-sdk/blob/main/PLAN.md). Workspace milestone tracking is maintained internally.
 
@@ -19,8 +19,8 @@ This table owns REF-* statuses. SDK-* dependencies are tracked in the SDK reposi
 | REF-002 | Complete deterministic Node reference scenarios | DONE | Codex | REF-001, SDK-005 |
 | REF-003 | Node protocol, failure and security demonstrations | DONE | Codex | REF-002, SDK-006, SDK-007 |
 | REF-004 | Node developer/operations guide and validation report | DONE | Codex | REF-003 |
-| REF-005 | Complete Python reference applications | PLANNED | Unassigned | REF-004, SDK-010, SDK-011 |
-| REF-006 | Four-pairing interoperability and parity suite | PLANNED | Unassigned | REF-005, SDK-007, SDK-011, REF-010 |
+| REF-005 | Complete Python reference applications | IN_PROGRESS | Codex | REF-004, SDK-010, SDK-011 |
+| REF-006 | Four-pairing interoperability and parity suite | IN_PROGRESS | Codex | REF-005, SDK-007, SDK-011, REF-010 |
 | REF-007 | Schema-driven generation demonstration | DEFERRED | Unassigned | REF-002, SDK-005 |
 | REF-008 | Cross-repository CI and joint reference readiness | PLANNED | Unassigned | REF-006, SDK-008, SDK-012, REF-010 |
 | REF-009 | Bundle and XML/XSD reference coverage | DEFERRED | Unassigned | REF-008, SDK-014, SDK-015 |
@@ -117,7 +117,20 @@ Acceptance criteria:
 - Add interpreter-matrix checks, formatting/lint/type checks, process readiness/timeout/cleanup and cross-platform smoke coverage for supported platforms.
 - Deliver executable Python setup, quickstart, scenario, operations and troubleshooting documentation. Record actual installed wheel hashes and supported runtime/SDK versions.
 
-Evidence: Not started.
+Evidence (2026-11-20): Python provider and client use built SDK wheels and the
+shared scenario manifest. The provider implements typed invoice, presence and
+echo flows, streaming, continuation, companion Parts and evidence-mode skill
+advertisement. Independent installed-consumer tests cover invalid wire requests
+that do not execute, invalid output that is not published, dishonest peer JSON
+and SSE, valid controls, and pinned transitive HTTPS with wrong-pin refusal and
+offline validation. [Hosted reference matrix](https://github.com/shashikanth-gs/a2a-schema-contract-reference/actions/runs/44660337235)
+passed Linux CPython 3.11–3.14 and macOS/Windows 3.14, including strict
+application typing, formatting and lint against SDK revision
+`e3b2e9bf0718e47b6cf9b33493a3b947b06f9096` and SHA-256
+`de1458954cdf61b5c05272901820aaeb22e8451081c196e475851cef8bef2579`.
+Later test-only wire checks and bounded evidence retention were verified locally;
+their hosted runs are pending. Full Node-equivalent security and external
+scenarios, complete cross-language parity and final acceptance remain open.
 
 ## REF-006: Four-pairing interoperability and parity suite
 
@@ -134,7 +147,12 @@ Acceptance criteria:
 - Provide evidence for SDK-012 and root milestone M4. If a common draft ambiguity emerges, document it and propose a specification change separately.
 - Extend all four pairings with REF-010's skill-associated discovery, embedded/external schema inspection and documented binding fixtures. Verify matching Python public APIs without source imports, duplicated schemas or framework dependencies.
 
-Evidence: Not started.
+Evidence: [Interoperability reports and commands](interoperability/README.md)
+record the installed-artifact four-pairing inline run and partial generated,
+cancellation and embedded discovery checks. The unmodified inline manifest is
+not a full pass: Python accepts root JSON null while the Node carrier refuses it.
+External-resource/discovery pairings, broader adversarial cases, hosted coverage
+and the remaining acceptance criteria are still open.
 
 ## REF-007: Schema-driven generation demonstration
 
