@@ -45,9 +45,10 @@ wheel and this package:
 python -m unittest discover -s tests -v
 ```
 
-These checks exercise real loopback HTTP, invalid wire input and output, four
-dishonest peer responses with a valid control, and verified loopback TLS with
-integrity-pinned transitive schemas, offline use and a wrong-pin refusal. The
+These checks exercise real loopback HTTP, invalid wire input and output, nine
+dishonest peer responses and invalid or truncated streams with valid controls,
+and verified loopback TLS with integrity-pinned transitive schemas, offline use
+and a wrong-pin refusal. The
 `--fixture-origin`, `--fixture-ca` and `--fixture-pins` provider options are
 explicitly restricted to this loopback test fixture, not production trust policy.
 
@@ -56,6 +57,11 @@ on CPython 3.11.15, 3.12.13, 3.13.14 and 3.14.10. The SDK wheel SHA-256 was
 `950d5830ddcb92ed525580df9b426754957284ca23b45a48f4cbfaf080ba07ab` and
 reference wheel SHA-256 was
 `d5a347d533382986e710bf356709e3ecd169c82fe6939c94603ed55c2a8ad613`.
+The expanded seven-method security and discovery suite passed locally on CPython
+3.12.13 with SDK wheel
+`de1458954cdf61b5c05272901820aaeb22e8451081c196e475851cef8bef2579` and
+reference wheel
+`108855d6b223b88a7806ec6fe2e0ce82c3bd89824db642e904e20bf9b0918da8`.
 These checks do not establish the full cross-platform or interoperability profile;
 REF-005/006 remain incomplete.
 

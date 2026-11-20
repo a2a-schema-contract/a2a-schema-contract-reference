@@ -163,6 +163,34 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                 ) as resolver:
                     with self.assertRaises(ContractError):
                         await resolver.resolve_catalog(catalog, origin="local")
+                (path / "bad-pins.json").write_text(
+                    json.dumps(bad_pins), encoding="utf-8"
+                )
+                refused = await asyncio.create_subprocess_exec(
+                    sys.executable,
+                    "-m",
+                    "a2a_schema_contract_reference.server",
+                    "--catalog",
+                    str(path / "catalog.json"),
+                    "--fixture-origin",
+                    origin,
+                    "--fixture-ca",
+                    str(cert),
+                    "--fixture-pins",
+                    str(path / "bad-pins.json"),
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                )
+                try:
+                    stdout, _ = await asyncio.wait_for(
+                        refused.communicate(), timeout=20
+                    )
+                    self.assertNotEqual(refused.returncode, 0)
+                    self.assertNotIn(b'"type": "ready"', stdout)
+                finally:
+                    if refused.returncode is None:
+                        refused.kill()
+                        await refused.wait()
         finally:
             if process is not None and process.returncode is None:
                 if url is not None:

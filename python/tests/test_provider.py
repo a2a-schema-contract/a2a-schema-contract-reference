@@ -15,6 +15,14 @@ from a2a_schema_contract.core import EXTENSION_URI, ContractError
 CATALOG = Path(__file__).resolve().parents[2] / "fixtures" / "catalog.json"
 CONTRACT = "urn:reference:invoice:1"
 INVOICE = {"quantity": 3, "unitPrice": 7, "label": None}
+SKILLS = [
+    {
+        "id": "invoice",
+        "name": "Invoice",
+        "description": "Invoice fixture",
+        "tags": ["test"],
+    }
+]
 
 
 class ProviderTests(unittest.IsolatedAsyncioTestCase):
@@ -25,7 +33,11 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
             "a2a_schema_contract_reference.server",
             "--catalog",
             str(CATALOG),
-            env={**os.environ, "REFERENCE_EVIDENCE": "1"},
+            env={
+                **os.environ,
+                "REFERENCE_EVIDENCE": "1",
+                "REFERENCE_SKILLS_JSON": json.dumps(SKILLS),
+            },
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -89,6 +101,10 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result.payload.present)
         self.assertEqual(result.payload.value, {"total": 21, "label": None})
 
+    async def test_evidence_skill_is_advertised(self):
+        card = (await self.http.get(self.url + "/.well-known/agent-card.json")).json()
+        self.assertEqual(card["skills"][0]["id"], "invoice")
+
     async def test_dishonest_peer_cannot_publish_invalid_result(self):
         # Reuse the actual agent's card, but independently construct the JSON-RPC
         # response a dishonest peer might send. The client must validate wire data.
@@ -99,6 +115,11 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
             "wrong-contract",
             "missing-primary",
             "bad-json",
+            "wrong-media",
+            "wrong-echo",
+            "duplicate-primary",
+            "unknown-state",
+            "foreign-task",
         ):
             marker = {
                 "role": "primary",
@@ -117,6 +138,8 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
                 marker["contractId"] = "urn:other:1"
             elif mutation == "missing-primary":
                 del part["metadata"]
+            elif mutation == "wrong-media":
+                part["mediaType"] = "text/plain"
             task = {
                 "id": "task",
                 "contextId": "context",
@@ -129,6 +152,14 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
                 },
                 "artifacts": [{"artifactId": "output", "parts": [part]}],
             }
+            if mutation == "wrong-echo":
+                task["metadata"][EXTENSION_URI]["outputRepresentationId"] = "other"
+            elif mutation == "duplicate-primary":
+                task["artifacts"][0]["parts"].append(copy.deepcopy(part))
+            elif mutation == "unknown-state":
+                task["status"]["state"] = "TASK_STATE_UNKNOWN_VALUE"
+            elif mutation == "foreign-task":
+                task["id"] = "foreign"
 
             def reply(request, mutation=mutation, task=task):
                 if request.method == "GET":
@@ -161,6 +192,94 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
                 else:
                     with self.assertRaises(ContractError, msg=mutation):
                         await client.invoke(invocation)
+
+    async def test_dishonest_stream_never_exposes_partial_business_output(self):
+        card = (await self.http.get(self.url + "/.well-known/agent-card.json")).json()
+        for mutation in ("valid", "invalid-value", "truncated"):
+            part = {
+                "data": {
+                    "total": -1 if mutation == "invalid-value" else 21,
+                    "label": None,
+                },
+                "mediaType": "application/json",
+                "metadata": {
+                    EXTENSION_URI: {
+                        "role": "primary",
+                        "contractId": CONTRACT,
+                        "direction": "output",
+                        "representationId": "rich",
+                    }
+                },
+            }
+            events = [
+                {
+                    "task": {
+                        "id": "task",
+                        "contextId": "context",
+                        "status": {"state": "TASK_STATE_WORKING"},
+                    }
+                },
+                {
+                    "artifactUpdate": {
+                        "taskId": "task",
+                        "contextId": "context",
+                        "lastChunk": True,
+                        "artifact": {"artifactId": "output", "parts": [part]},
+                    }
+                },
+                {
+                    "statusUpdate": {
+                        "taskId": "task",
+                        "contextId": "context",
+                        "status": {"state": "TASK_STATE_COMPLETED"},
+                        "metadata": {
+                            EXTENSION_URI: {
+                                "contractId": CONTRACT,
+                                "outputRepresentationId": "rich",
+                            }
+                        },
+                    }
+                },
+            ]
+
+            def reply(request, mutation=mutation, events=events):
+                if request.method == "GET":
+                    return httpx.Response(200, json=card)
+                wire = json.loads(request.content)
+                selected = events[:-1] if mutation == "truncated" else events
+                body = "".join(
+                    "data: "
+                    + json.dumps({"jsonrpc": "2.0", "id": wire["id"], "result": event})
+                    + "\n\n"
+                    for event in selected
+                )
+                return httpx.Response(
+                    200, headers={"content-type": "text/event-stream"}, content=body
+                )
+
+            async with (
+                httpx.AsyncClient(transport=httpx.MockTransport(reply)) as fake_http,
+                await ContractClient.discover(
+                    self.url, http_client=fake_http
+                ) as client,
+            ):
+                invocation = client.prepare(
+                    CONTRACT,
+                    input=INVOICE,
+                    input_representation_id="json",
+                    accepted_output_representation_ids=["rich"],
+                )
+                published = []
+                if mutation == "valid":
+                    published = [event async for event in client.stream(invocation)]
+                    self.assertEqual(
+                        published[-1].result.payload.value, {"total": 21, "label": None}
+                    )
+                else:
+                    with self.assertRaises(ContractError, msg=mutation):
+                        async for event in client.stream(invocation):
+                            published.append(event)
+                    self.assertTrue(all(event.result is None for event in published))
 
 
 if __name__ == "__main__":

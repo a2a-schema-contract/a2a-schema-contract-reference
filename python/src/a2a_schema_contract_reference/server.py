@@ -278,6 +278,9 @@ async def serve(
     listener = socket.socket()
     listener.bind((host, port))
     base = f"http://{host}:{listener.getsockname()[1]}"
+    evidence_enabled = os.environ.get("REFERENCE_EVIDENCE") == "1"
+    skills_json = os.environ.get("REFERENCE_SKILLS_JSON") if evidence_enabled else None
+    skills = json.loads(skills_json) if skills_json else []
     card = ParseDict(
         {
             "name": "Invoice and presence reference",
@@ -293,11 +296,11 @@ async def serve(
             "capabilities": {"streaming": True},
             "defaultInputModes": ["application/json", "text/plain"],
             "defaultOutputModes": ["application/json", "text/plain"],
-            "skills": [],
+            "skills": skills,
         },
         AgentCard(),
     )
-    executor = ReferenceAgent(os.environ.get("REFERENCE_EVIDENCE") == "1")
+    executor = ReferenceAgent(evidence_enabled)
     boundary = ContractServer(
         card=card, catalog=catalog, executor=executor, required=True
     )
