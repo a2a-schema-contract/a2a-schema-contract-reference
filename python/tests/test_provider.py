@@ -70,19 +70,33 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_invalid_wire_input_never_executes(self):
-        request = copy.deepcopy(self.prepare().request.value)
-        request["message"]["parts"][0]["data"]["quantity"] = -1
-        response = await self.http.post(
-            self.url + "/a2a",
-            headers={"A2A-Extensions": EXTENSION_URI, "A2A-Version": "1.0"},
-            json={
-                "jsonrpc": "2.0",
-                "id": "invalid",
-                "method": "SendMessage",
-                "params": request,
-            },
-        )
-        self.assertIn("error", response.json())
+        for mutation in (
+            "invalid-value",
+            "wrong-media",
+            "missing-primary",
+            "unknown-representation",
+        ):
+            request = copy.deepcopy(self.prepare().request.value)
+            part = request["message"]["parts"][0]
+            if mutation == "invalid-value":
+                part["data"]["quantity"] = -1
+            elif mutation == "wrong-media":
+                part["mediaType"] = "text/plain"
+            elif mutation == "missing-primary":
+                del part["metadata"]
+            elif mutation == "unknown-representation":
+                request["metadata"][EXTENSION_URI]["inputRepresentationId"] = "unknown"
+            response = await self.http.post(
+                self.url + "/a2a",
+                headers={"A2A-Extensions": EXTENSION_URI, "A2A-Version": "1.0"},
+                json={
+                    "jsonrpc": "2.0",
+                    "id": mutation,
+                    "method": "SendMessage",
+                    "params": request,
+                },
+            )
+            self.assertIn("error", response.json(), mutation)
         evidence = (await self.http.get(self.url + "/evidence")).json()
         self.assertEqual(evidence["executions"], 0)
 
