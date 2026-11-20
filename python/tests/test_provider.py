@@ -127,8 +127,11 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
             "--catalog",
             str(CATALOG),
             env={
-                **os.environ,
-                "REFERENCE_EVIDENCE": "0",
+                **{
+                    key: value
+                    for key, value in os.environ.items()
+                    if key != "REFERENCE_EVIDENCE"
+                },
                 "REFERENCE_SKILLS_JSON": json.dumps(SKILLS),
             },
             stdout=asyncio.subprocess.PIPE,
