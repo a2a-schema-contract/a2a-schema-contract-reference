@@ -119,6 +119,40 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
         card = (await self.http.get(self.url + "/.well-known/agent-card.json")).json()
         self.assertEqual(card["skills"][0]["id"], "invoice")
 
+    async def test_evidence_routes_and_skills_are_disabled_by_default(self):
+        process = await asyncio.create_subprocess_exec(
+            sys.executable,
+            "-m",
+            "a2a_schema_contract_reference.server",
+            "--catalog",
+            str(CATALOG),
+            env={
+                **os.environ,
+                "REFERENCE_EVIDENCE": "0",
+                "REFERENCE_SKILLS_JSON": json.dumps(SKILLS),
+            },
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            line = await asyncio.wait_for(process.stdout.readline(), timeout=10)
+            if not line:
+                raise RuntimeError((await process.stderr.read()).decode())
+            url = json.loads(line)["url"]
+            self.assertEqual((await self.http.get(url + "/evidence")).status_code, 404)
+            self.assertEqual((await self.http.post(url + "/shutdown")).status_code, 404)
+            card = (await self.http.get(url + "/.well-known/agent-card.json")).json()
+            self.assertFalse(card.get("skills"))
+        finally:
+            if process.returncode is None:
+                process.terminate()
+                try:
+                    await asyncio.wait_for(process.wait(), timeout=10)
+                except TimeoutError:
+                    process.kill()
+                    await process.wait()
+                    self.fail("provider did not exit after termination")
+
     async def test_dishonest_peer_cannot_publish_invalid_result(self):
         # Reuse the actual agent's card, but independently construct the JSON-RPC
         # response a dishonest peer might send. The client must validate wire data.
