@@ -70,6 +70,8 @@ class ReferenceAgent(AgentExecutor):
             }
             if selection.output is not None:
                 call["outputRepresentationId"] = selection.output.representation.id
+            if len(self.calls) == 4096:
+                del self.calls[0]
             self.calls.append(call)
 
         if settings.get("fault") == "throw":
