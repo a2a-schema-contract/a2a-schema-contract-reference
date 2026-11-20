@@ -20,6 +20,21 @@ An SDK artifact update needs new consumer evidence; changing a hash alone does
 not establish compatibility. Record the exact commands, runtime, scenario
 results and remaining limitations in the owning task/report.
 
+For Python changes, follow the [Python quickstart](README.md#python-quickstart),
+run `python/.venv/bin/python -m unittest discover -s python/tests -v` from the
+repository root, and run `python/scripts/check_installed.py` with the SDK and
+reference wheels as described in the [Python guide](python/README.md). The
+script verifies the committed SDK wheel hash before creating an isolated
+consumer. Changes to the pinned revision or wheel bytes require independent
+installed-consumer evidence and a corresponding update to
+`python/artifact-input.json` and the Python workflow. CI checks Python source
+formatting, lint and strict application types.
+
+Run the appropriate [interoperability profiles](interoperability/README.md)
+when changing client/server semantics. A selected subset reports `PARTIAL`; do
+not treat it as full four-pairing acceptance. Retain specific artifact hashes,
+scenario outcomes and known differences, including root-null carrier behavior.
+
 Open an issue describing the scenario or bug, with a small reproduction and
 expected behavior. Keep example data synthetic and omit credentials/private
 payloads. Send security findings through [SECURITY.md](SECURITY.md). Package

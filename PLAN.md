@@ -22,7 +22,7 @@ This table owns REF-* statuses. SDK-* dependencies are tracked in the SDK reposi
 | REF-005 | Complete Python reference applications | IN_PROGRESS | Codex | REF-004, SDK-010, SDK-011 |
 | REF-006 | Four-pairing interoperability and parity suite | IN_PROGRESS | Codex | REF-005, SDK-007, SDK-011, REF-010 |
 | REF-007 | Schema-driven generation demonstration | DEFERRED | Unassigned | REF-002, SDK-005 |
-| REF-008 | Cross-repository CI and joint reference readiness | PLANNED | Unassigned | REF-006, SDK-008, SDK-012, REF-010 |
+| REF-008 | Cross-repository CI and joint reference readiness | IN_PROGRESS | Codex | REF-006, SDK-008, SDK-012, REF-010 |
 | REF-009 | Bundle and XML/XSD reference coverage | DEFERRED | Unassigned | REF-008, SDK-014, SDK-015 |
 | REF-010 | Installed Node skill discovery and schema-access workflow | DONE | Codex | REF-004, SDK-016–019 |
 
@@ -182,7 +182,15 @@ Acceptance criteria:
 - Verify every supported tutorial/command and deployment recipe against installed artifacts. Normal scenarios remain reproducible without external accounts; optional generator checks are clearly separate.
 - Tie the reference revision to SDK release candidates and produce a root M5 readiness report with exclusions and reproduction commands. Preparing workflows does not mean GitHub/PyPI/npm publication has happened.
 
-Evidence: Not started.
+Evidence (2026-11-20): Node and Python artifact intake is pinned to explicit
+SDK source revisions and hashes, with hosted installed-consumer workflows and
+local artifact options. Both quickstarts were exercised from fresh public clones;
+the refreshed Node pin passed the isolated Node 24 consumer gate, and the Python
+preview passed eight tests and two live loopback calls on CPython 3.12. The
+[joint readiness note](docs/joint-readiness.md) records compatibility, audit
+scope, historical versus new artifact evidence and pending release decisions.
+Current hosted checks for new bytes, full REF-006 acceptance, SDK-012, all
+tutorial/deployment verification and the M5 release report remain open.
 
 ## REF-009: Bundle and XML/XSD reference coverage
 
