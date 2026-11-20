@@ -7,6 +7,7 @@ import os
 import socket
 import ssl
 from pathlib import Path
+from typing import TypedDict
 from urllib.parse import urlsplit
 
 import uvicorn
@@ -27,6 +28,25 @@ from a2a_schema_contract.server import ContractServer, output_artifact, output_m
 from google.protobuf.json_format import MessageToDict, ParseDict
 from starlette.responses import JSONResponse
 from starlette.types import Receive, Scope, Send
+
+
+class InvoiceInput(TypedDict):
+    quantity: int | float
+    unitPrice: int | float
+    label: str | None
+
+
+class InvoiceOutput(TypedDict):
+    total: int | float
+    label: str | None
+
+
+def calculate_invoice(invoice: InvoiceInput) -> InvoiceOutput:
+    """Business types are application-owned; the SDK validates the original schema."""
+    return {
+        "total": invoice["quantity"] * invoice["unitPrice"],
+        "label": invoice["label"],
+    }
 
 
 class ReferenceAgent(AgentExecutor):
@@ -81,7 +101,7 @@ class ReferenceAgent(AgentExecutor):
                 input_value = execution.input
                 if isinstance(input_value, str):
                     total: int | float = int(input_value or "0")
-                    label = None
+                    label: str | None = None
                 elif isinstance(input_value, dict):
                     quantity, unit_price = (
                         input_value["quantity"],
@@ -94,8 +114,16 @@ class ReferenceAgent(AgentExecutor):
                         or not isinstance(unit_price, (int, float))
                     ):
                         raise TypeError("Expected invoice numbers")
-                    total = quantity * unit_price
-                    label = input_value["label"]
+                    raw_label = input_value["label"]
+                    if raw_label is not None and not isinstance(raw_label, str):
+                        raise TypeError("Expected invoice label")
+                    label = raw_label
+                    invoice: InvoiceInput = {
+                        "quantity": quantity,
+                        "unitPrice": unit_price,
+                        "label": label,
+                    }
+                    total = calculate_invoice(invoice)["total"]
                 else:
                     raise ValueError("Expected invoice input")
                 if output.representation.id == "text":

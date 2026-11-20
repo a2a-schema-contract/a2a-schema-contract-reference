@@ -30,6 +30,8 @@ record; the default port is selected by the OS. It drains and closes SDK state
 on shutdown. Tests use `POST /shutdown` only with evidence mode enabled. The
 fixture server does not provide authentication, authorization, durable task
 storage or production monitoring; a host must supply those capabilities.
+Its invoice business function uses application-owned `TypedDict` input and output
+types after the SDK validates the original wire payload against the shared schema.
 
 If discovery fails, check the readiness URL and confirm the Python SDK wheel is
 installed with the `server` extra. External-resource fixture failures should be
@@ -61,7 +63,7 @@ The expanded seven-method security and discovery suite passed locally on CPython
 3.12.13 with SDK wheel
 `de1458954cdf61b5c05272901820aaeb22e8451081c196e475851cef8bef2579` and
 reference wheel
-`108855d6b223b88a7806ec6fe2e0ce82c3bd89824db642e904e20bf9b0918da8`.
+`584d1b45a99fe0d889fe3d59f2239a68f9e47a295de7ccb6cb65222ed49a44ba`.
 These checks do not establish the full cross-platform or interoperability profile;
 REF-005/006 remain incomplete.
 
