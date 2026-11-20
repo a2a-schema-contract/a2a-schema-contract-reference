@@ -1,0 +1,65 @@
+name: Generated four-pairing artifact consumers
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  generated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22.23.3", "24.21.0"]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: shashikanth-gs/a2a-schema-contract-sdk
+          ref: 07ddd60e339ed0d86f2ace091e263a7aa369a0b9
+          path: .sdk-node
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: shashikanth-gs/a2a-schema-contract-sdk
+          ref: e3b2e9bf0718e47b6cf9b33493a3b947b06f9096
+          path: .sdk-python
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          version: "0.12.1"
+      - run: npm ci
+        working-directory: .sdk-node/js
+      - run: npm run build
+        working-directory: .sdk-node/js
+      - run: mkdir -p ../../js/artifacts && npm pack --ignore-scripts --pack-destination ../../js/artifacts
+        working-directory: .sdk-node/js
+      - run: uv build --wheel
+        working-directory: .sdk-python/python
+      - run: uv build --wheel
+        working-directory: python
+      - name: Run generated profile from fresh consumers
+        run: >-
+          python interoperability/check_clean.py
+          --sdk-wheel .sdk-python/python/dist/a2a_schema_contract-0.1.0.dev0-py3-none-any.whl
+          --reference-wheel python/dist/a2a_schema_contract_reference-0.1.0.dev0-py3-none-any.whl
+          --node-artifact js/artifacts/a2a-schema-contract-0.1.0-rc.1.tgz
+          --node "$(command -v node)"
+          --report "$RUNNER_TEMP/generated-parity.json"
+          --cancellation-report "$RUNNER_TEMP/cancellation-parity.json"
+          --discovery-report "$RUNNER_TEMP/discovery-parity.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: generated-parity-node-${{ matrix.node }}
+          path: |
+            ${{ runner.temp }}/generated-parity.json
+            ${{ runner.temp }}/cancellation-parity.json
+            ${{ runner.temp }}/discovery-parity.json
+          if-no-files-found: warn

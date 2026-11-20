@@ -29,12 +29,27 @@ may be repeated for a subset and reports `PARTIAL` on success. An optional
 result for diagnosis and can never produce a full `PASS`.
 
 The runner compares installed SDK package files with the supplied artifacts and
-records their hashes along with the manifest, catalog and import paths. It does not
-yet provide independent
-external-resource, cancellation, malformed-peer, generated-case, and discovery
-coverage. It also does not yet establish a supported OS/runtime matrix. Thus a
-passing inline manifest alone is not REF-006 acceptance. See the reference plan
-for the complete gate.
+records their hashes along with the manifest, catalog and import paths. A passing
+inline manifest alone is not REF-006 acceptance. See the reference plan for the
+complete gate.
+
+`generated_cases.py --output /tmp/generated.json` produces 16 deterministic
+valid/invalid invoice boundary cases. Run them in every pairing using
+`--manifest /tmp/generated.json`; `--cancellation` and `--discovery` select
+independent explicit-cancel and embedded skill/schema-discovery profiles. The
+cancel profile verifies an initial task, an explicit cancellation, a canceled
+terminal event and no output; discovery checks association, schema inspection,
+invalid-input zero dispatch and flight invocation. These focused profiles do not
+cover all security and interoperability requirements.
+
+`check_clean.py` copies the reference into a temporary consumer, installs supplied
+SDK and reference wheels and the Node tarball, verifies installed package bytes,
+and runs generated cases. `--cancellation-report` and `--discovery-report` add the
+other profiles. The generated-parity GitHub workflow configures these checks for
+Linux Node 22/24 with Python 3.12; check actual workflow results before claiming
+hosted coverage. The three local reports from November 20 record successful runs
+of these profiles with Node 24.21.0 and Python 3.12.13, SDK `e3b2e9b` and reference
+wheel SHA-256 `108855d6b223b88a7806ec6fe2e0ce82c3bd89824db642e904e20bf9b0918da8`.
 
 The existing `root-null-refused` fixture reflects the Node 1.3.0 carrier's
 inability to represent root JSON null. Python's SDK accepts root null, so the
@@ -53,7 +68,8 @@ That difference is outside the shared carrier profile and remains a reported
 failure in these full-manifest reports. The reports omit local absolute import
 paths and error traces; they retain individual outcomes and verified SDK hashes.
 
-These reports describe a local development artifact, not a release gate: the
-interpreter/OS matrix and the external-resource, cancellation, adversarial,
-discovery and clean-consumer checks listed above remain outstanding. Server
-shutdown on Windows also needs a verified graceful-control path.
+These reports describe a local development artifact, not a release gate: broader
+interpreter/OS coverage and four-pairing external-resource, malformed-peer,
+disconnect cancellation, generated-case breadth and external discovery checks
+remain outstanding. Server shutdown on Windows also needs a verified
+graceful-control path.

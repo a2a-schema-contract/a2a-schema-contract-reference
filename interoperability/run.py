@@ -23,17 +23,31 @@ def digest(path):
 
 
 def run(args):
-    manifest = json.loads(MANIFEST.read_text())
-    scenarios = [item["id"] for item in manifest["scenarios"]]
+    manifest_path = args.manifest.resolve()
+    manifest = json.loads(manifest_path.read_text())
+    scenarios = (
+        ["explicit-cancel"]
+        if args.cancellation
+        else ["skill-discovery"]
+        if args.discovery
+        else [item["id"] for item in manifest["scenarios"]]
+    )
+    catalog_path = ROOT / "fixtures/flight-catalog.json" if args.discovery else CATALOG
     selected = args.scenario or scenarios
     if len(set(selected)) != len(selected) or any(
         item not in scenarios for item in selected
     ):
         raise ValueError("Scenario names must be known and unique")
     report = {
-        "profile": manifest["profile"],
-        "manifest_sha256": digest(MANIFEST),
-        "catalog_sha256": digest(CATALOG),
+        "profile": (
+            "explicit-cancellation-v1"
+            if args.cancellation
+            else "inline-skill-discovery-v1"
+            if args.discovery
+            else manifest["profile"]
+        ),
+        "manifest_sha256": digest(manifest_path),
+        "catalog_sha256": digest(catalog_path),
         "pairings": [],
     }
     clean_env = {
@@ -114,10 +128,15 @@ def run(args):
                     "-m",
                     "a2a_schema_contract_reference.server",
                     "--catalog",
-                    str(CATALOG),
+                    str(catalog_path),
                 ]
             )
             env = {**clean_env, "REFERENCE_EVIDENCE": "1", "REFERENCE_PORT": "0"}
+            if args.discovery:
+                env["REFERENCE_CATALOG_JSON"] = catalog_path.read_text()
+                env["REFERENCE_SKILLS_JSON"] = (
+                    ROOT / "interoperability/discovery-skills.json"
+                ).read_text()
             stderr = tempfile.TemporaryFile(mode="w+t")  # noqa: SIM115 - closed in finally
             process = subprocess.Popen(
                 command,
@@ -147,12 +166,37 @@ def run(args):
                 ):
                     raise RuntimeError(f"invalid readiness message: {ready!r}")
                 for scenario in selected:
-                    if client == "node":
+                    if args.cancellation and client == "node":
+                        call = [
+                            args.node,
+                            str(ROOT / "js/src/client/cancel-parity.mjs"),
+                            ready["url"],
+                        ]
+                    elif args.cancellation:
+                        call = [
+                            args.python,
+                            str(ROOT / "interoperability/cancel_python.py"),
+                            ready["url"],
+                        ]
+                    elif args.discovery and client == "node":
+                        call = [
+                            args.node,
+                            str(ROOT / "js/src/client/discovery-parity.mjs"),
+                            ready["url"],
+                        ]
+                    elif args.discovery:
+                        call = [
+                            args.python,
+                            str(ROOT / "interoperability/discovery_python.py"),
+                            ready["url"],
+                        ]
+                    elif client == "node":
                         call = [
                             args.node,
                             str(ROOT / "interoperability/node-client.mjs"),
                             ready["url"],
                             scenario,
+                            str(manifest_path),
                         ]
                     else:
                         call = [
@@ -161,7 +205,7 @@ def run(args):
                             "a2a_schema_contract_reference.client",
                             ready["url"],
                             "--manifest",
-                            str(MANIFEST),
+                            str(manifest_path),
                             "--scenario",
                             scenario,
                         ]
@@ -181,7 +225,7 @@ def run(args):
                     except (subprocess.SubprocessError, ValueError, IndexError) as exc:
                         outcome = {"id": scenario, "outcome": "FAIL", "error": str(exc)}
                         if isinstance(exc, subprocess.CalledProcessError):
-                            outcome["stderr"] = exc.stderr[-4000:]
+                            outcome["stderr"] = exc.stderr[:2000] + exc.stderr[-2000:]
                     pairing["scenarios"].append(outcome)
                     print(
                         f"{client} -> {server} {scenario}: {outcome['outcome']}",
@@ -244,6 +288,14 @@ if __name__ == "__main__":
         help="Empty directory outside the source checkout",
     )
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path, default=MANIFEST)
+    profiles = parser.add_mutually_exclusive_group()
+    profiles.add_argument(
+        "--cancellation", action="store_true", help="Run explicit cancellation profile"
+    )
+    profiles.add_argument(
+        "--discovery", action="store_true", help="Run embedded skill discovery profile"
+    )
     parser.add_argument(
         "--scenario",
         action="append",

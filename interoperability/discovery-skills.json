@@ -1,0 +1,20 @@
+[
+  {
+    "id": "flight-search",
+    "name": "Flight search",
+    "description": "Find flight options",
+    "tags": ["travel"]
+  },
+  {
+    "id": "trip-planning",
+    "name": "Trip planning",
+    "description": "Plan a trip",
+    "tags": ["travel"]
+  },
+  {
+    "id": "unused",
+    "name": "Unused",
+    "description": "No mapped contract",
+    "tags": []
+  }
+]
