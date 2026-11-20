@@ -1,0 +1,59 @@
+{
+  "profile": "dishonest-output-v1",
+  "manifest_sha256": "ea58cf8db5a7c07953d89d5b25505a164388ba22f8b724ddcc018476bc8ca071",
+  "catalog_sha256": "2876e1c89c1422114d1ae34d2ff7418cedb2c8dec1469a35967fd259cad9cc80",
+  "pairings": [
+    {
+      "client": "node",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "dishonest-output",
+          "outcome": "PASS",
+          "executions": 1
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "dishonest-output",
+          "outcome": "PASS",
+          "executions": 1
+        }
+      ]
+    },
+    {
+      "client": "node",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "dishonest-output",
+          "outcome": "PASS",
+          "executions": 1
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "dishonest-output",
+          "outcome": "PASS",
+          "executions": 1
+        }
+      ]
+    }
+  ],
+  "python_version": "Python 3.12.13",
+  "node_version": "v24.21.0",
+  "python_sdk_wheel_sha256": "de1458954cdf61b5c05272901820aaeb22e8451081c196e475851cef8bef2579",
+  "node_sdk_tarball_sha256": "09c0146a2d9d1ba110fd6d888374ce0233f8effc1df77dc42f6a167bd4717677",
+  "diagnostic_explicit_default": false,
+  "complete_manifest": true,
+  "result": "PASS",
+  "reference_wheel_sha256": "f6cbd5ef431c5e9555a55b4faa83836c0952c8bc1eb0db7600a5c9976a06bca2"
+}

@@ -23,6 +23,7 @@ def main():
     parser.add_argument("--report", required=True, type=Path)
     parser.add_argument("--cancellation-report", type=Path)
     parser.add_argument("--discovery-report", type=Path)
+    parser.add_argument("--dishonest-report", type=Path)
     args = parser.parse_args()
     sdk, reference, tarball, node, report = (
         path.resolve()
@@ -125,6 +126,8 @@ def main():
                 reports.append((args.cancellation_report.resolve(), ["--cancellation"]))
             if args.discovery_report:
                 reports.append((args.discovery_report.resolve(), ["--discovery"]))
+            if args.dishonest_report:
+                reports.append((args.dishonest_report.resolve(), ["--dishonest"]))
             failed = False
             for output, options in reports:
                 completed = subprocess.run(

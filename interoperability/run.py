@@ -30,6 +30,8 @@ def run(args):
         if args.cancellation
         else ["skill-discovery"]
         if args.discovery
+        else ["dishonest-output"]
+        if args.dishonest
         else [item["id"] for item in manifest["scenarios"]]
     )
     catalog_path = ROOT / "fixtures/flight-catalog.json" if args.discovery else CATALOG
@@ -44,6 +46,8 @@ def run(args):
             if args.cancellation
             else "inline-skill-discovery-v1"
             if args.discovery
+            else "dishonest-output-v1"
+            if args.dishonest
             else manifest["profile"]
         ),
         "manifest_sha256": digest(manifest_path),
@@ -190,6 +194,18 @@ def run(args):
                             str(ROOT / "interoperability/discovery_python.py"),
                             ready["url"],
                         ]
+                    elif args.dishonest and client == "node":
+                        call = [
+                            args.node,
+                            str(ROOT / "js/src/client/dishonest-parity.mjs"),
+                            ready["url"],
+                        ]
+                    elif args.dishonest:
+                        call = [
+                            args.python,
+                            str(ROOT / "interoperability/dishonest_python.py"),
+                            ready["url"],
+                        ]
                     elif client == "node":
                         call = [
                             args.node,
@@ -295,6 +311,9 @@ if __name__ == "__main__":
     )
     profiles.add_argument(
         "--discovery", action="store_true", help="Run embedded skill discovery profile"
+    )
+    profiles.add_argument(
+        "--dishonest", action="store_true", help="Run dishonest-output profile"
     )
     parser.add_argument(
         "--scenario",
