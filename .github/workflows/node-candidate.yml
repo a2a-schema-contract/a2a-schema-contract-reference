@@ -23,7 +23,7 @@ jobs:
         run: node js/scripts/source-checkpoint.mjs
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          repository: shashikanth-gs/a2a-schema-contract-sdk
+          repository: a2a-schema-contract/a2a-schema-contract-sdk
           ref: ${{ steps.checkpoint.outputs.sdk_revision }}
           path: .sdk-source
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
