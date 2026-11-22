@@ -13,7 +13,7 @@ from pathlib import Path
 
 import httpx
 from a2a_schema_contract.client import ContractClient
-from a2a_schema_contract.core import ContractError
+from a2a_schema_contract.core import EXTENSION_URI, ContractError
 from a2a_schema_contract.resolver import ContractResolver
 
 FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "tls"
@@ -37,9 +37,13 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                 path = headers.split(b" ")[1].decode("ascii")
                 requested.append(path)
                 body = documents[path]
+                media = (
+                    "application/json"
+                    if path == "/catalog.json"
+                    else "application/schema+json"
+                )
                 writer.write(
-                    b"HTTP/1.1 200 OK\r\nContent-Type: application/schema+json\r\n"
-                    + f"Content-Length: {len(body)}\r\nConnection: close\r\n\r\n".encode()
+                    f"HTTP/1.1 200 OK\r\nContent-Type: {media}\r\nContent-Length: {len(body)}\r\nConnection: close\r\n\r\n".encode()
                     + body
                 )
                 await writer.drain()
@@ -96,6 +100,14 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                 }
             ]
         }
+        documents["/catalog.json"] = json.dumps(catalog).encode()
+        catalog_uri = origin + "/catalog.json"
+        pins[catalog_uri] = {
+            "algorithm": "sha-256",
+            "value": base64.b64encode(
+                hashlib.sha256(documents["/catalog.json"]).digest()
+            ).decode(),
+        }
         process = None
         url = None
         try:
@@ -117,6 +129,8 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                     str(cert),
                     "--fixture-pins",
                     str(path / "pins.json"),
+                    "--fixture-catalog-reference",
+                    catalog_uri,
                     env={**os.environ, "REFERENCE_EVIDENCE": "1"},
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
@@ -125,6 +139,18 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                 if not line:
                     raise RuntimeError((await process.stderr.read()).decode())
                 url = json.loads(line)["url"]
+                async with httpx.AsyncClient(timeout=10) as http:
+                    card = (await http.get(url + "/.well-known/agent-card.json")).json()
+                    extension = next(
+                        item
+                        for item in card["capabilities"]["extensions"]
+                        if item["uri"] == EXTENSION_URI
+                    )
+                    self.assertEqual(extension["params"]["catalog"]["uri"], catalog_uri)
+                    self.assertEqual(
+                        extension["params"]["catalog"]["integrity"], pins[catalog_uri]
+                    )
+                    self.assertNotIn("inline", extension["params"]["catalog"])
                 async with ContractResolver(
                     tls=client_tls,
                     allowed_origins=(origin,),
@@ -150,6 +176,7 @@ class ExternalTests(unittest.IsolatedAsyncioTestCase):
                     )
                 self.assertGreaterEqual(requested.count("/root.json"), 1)
                 self.assertGreaterEqual(requested.count("/types.json"), 1)
+                self.assertGreaterEqual(requested.count("/catalog.json"), 1)
                 bad_pins = dict(pins)
                 bad_pins[origin + "/root.json"] = {
                     "algorithm": "sha-256",

@@ -49,10 +49,12 @@ python -m unittest discover -s tests -v
 
 These checks exercise real loopback HTTP, invalid wire input and output, nine
 dishonest peer responses and invalid or truncated streams with valid controls,
-and verified loopback TLS with integrity-pinned transitive schemas, offline use
-and a wrong-pin refusal. The
+and verified loopback TLS with an externally advertised, integrity-pinned catalog,
+transitive schemas, offline use and a wrong-pin refusal. The
 `--fixture-origin`, `--fixture-ca` and `--fixture-pins` provider options are
 explicitly restricted to this loopback test fixture, not production trust policy.
+`--fixture-catalog-reference` additionally requires evidence mode and an exact
+catalog integrity pin; it advertises the catalog URI rather than inlining it.
 
 On macOS arm64, five test methods passed in separate noneditable wheel consumers
 on CPython 3.11.15, 3.12.13, 3.13.14 and 3.14.10. The SDK wheel SHA-256 was
@@ -64,6 +66,11 @@ The expanded seven-method security and discovery suite passed locally on CPython
 `de1458954cdf61b5c05272901820aaeb22e8451081c196e475851cef8bef2579` and
 reference wheel
 `584d1b45a99fe0d889fe3d59f2239a68f9e47a295de7ccb6cb65222ed49a44ba`.
+The expanded eight-test installed-consumer suite also passed locally with SDK
+revision `cefac0feaa0d09ddd79974f6a6f0bc12bed4ff33`, SDK wheel SHA-256
+`733972feac765fefc8706cc32e14bf6fa071cedbfb883798a2984640ff87f400`, and
+reference wheel SHA-256
+`b41e9b9c51d3f98186b60f92a1db1509293879ed5cfa4ae81a7332eb674a7afc`.
 These checks do not establish the full cross-platform or interoperability profile;
 REF-005/006 remain incomplete.
 

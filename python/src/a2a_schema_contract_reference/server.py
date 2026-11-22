@@ -272,8 +272,16 @@ async def serve(
     fixture_origin: str | None = None,
     fixture_ca: Path | None = None,
     fixture_pins: Path | None = None,
+    fixture_catalog_reference: str | None = None,
 ) -> None:
     catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    evidence_enabled = os.environ.get("REFERENCE_EVIDENCE") == "1"
+    if fixture_catalog_reference is not None and (
+        not evidence_enabled or fixture_origin is None
+    ):
+        raise ValueError(
+            "External catalog fixture requires evidence mode and resolver settings"
+        )
     resolver = None
     if fixture_origin is not None:
         if fixture_ca is None or fixture_pins is None:
@@ -294,21 +302,44 @@ async def serve(
             raise ValueError("External fixture origin must use loopback HTTPS")
         tls = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         tls.load_verify_locations(cafile=str(fixture_ca))
+        pins = json.loads(fixture_pins.read_text(encoding="utf-8"))
         resolver = ContractResolver(
             tls=tls,
             allowed_origins=(fixture_origin,),
             allowed_addresses={"127.0.0.1": ("127.0.0.1",)},
-            resource_integrity=json.loads(fixture_pins.read_text(encoding="utf-8")),
+            resource_integrity=pins,
         )
         try:
-            catalog = await resolver.resolve_catalog(catalog, origin="local")
+            if fixture_catalog_reference is None:
+                catalog = await resolver.resolve_catalog(catalog, origin="local")
+            else:
+                reference = urlsplit(fixture_catalog_reference)
+                if (reference.scheme, reference.netloc) != (
+                    fixture_url.scheme,
+                    fixture_url.netloc,
+                ):
+                    raise ValueError("External catalog must use the fixture origin")
+                integrity = pins.get(fixture_catalog_reference)
+                if integrity is None:
+                    raise ValueError(
+                        "External catalog fixture requires an integrity pin"
+                    )
+                catalog = await resolver.resolve_extension_params(
+                    {
+                        "catalog": {
+                            "uri": fixture_catalog_reference,
+                            "mediaType": "application/json",
+                            "integrity": integrity,
+                        }
+                    },
+                    origin="local",
+                )
         except BaseException:
             await resolver.close()
             raise
     listener = socket.socket()
     listener.bind((host, port))
     base = f"http://{host}:{listener.getsockname()[1]}"
-    evidence_enabled = os.environ.get("REFERENCE_EVIDENCE") == "1"
     skills_json = os.environ.get("REFERENCE_SKILLS_JSON") if evidence_enabled else None
     skills = json.loads(skills_json) if skills_json else []
     card = ParseDict(
@@ -332,7 +363,13 @@ async def serve(
     )
     executor = ReferenceAgent(evidence_enabled)
     boundary = ContractServer(
-        card=card, catalog=catalog, executor=executor, required=True
+        card=card,
+        catalog=catalog,
+        executor=executor,
+        required=True,
+        catalog_delivery="external"
+        if fixture_catalog_reference is not None
+        else "inline",
     )
     executor.boundary = boundary
     app = create_app(boundary)
@@ -388,6 +425,7 @@ def main() -> None:
     parser.add_argument("--fixture-origin")
     parser.add_argument("--fixture-ca", type=Path)
     parser.add_argument("--fixture-pins", type=Path)
+    parser.add_argument("--fixture-catalog-reference")
     args = parser.parse_args()
     asyncio.run(
         serve(
@@ -397,6 +435,7 @@ def main() -> None:
             fixture_origin=args.fixture_origin,
             fixture_ca=args.fixture_ca,
             fixture_pins=args.fixture_pins,
+            fixture_catalog_reference=args.fixture_catalog_reference,
         )
     )
 

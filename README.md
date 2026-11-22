@@ -80,7 +80,7 @@ This preview requires CPython 3.11–3.14 and `uv`. From a fresh directory:
 
 ```sh
 git clone https://github.com/shashikanth-gs/a2a-schema-contract-sdk.git
-git -C a2a-schema-contract-sdk checkout --detach e3b2e9bf0718e47b6cf9b33493a3b947b06f9096
+git -C a2a-schema-contract-sdk checkout --detach cefac0feaa0d09ddd79974f6a6f0bc12bed4ff33
 cd a2a-schema-contract-sdk/python
 uv build --wheel
 cd ../..
