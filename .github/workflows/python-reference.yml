@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: a2a-schema-contract/a2a-schema-contract-sdk
-          ref: e3b2e9bf0718e47b6cf9b33493a3b947b06f9096
+          ref: cefac0feaa0d09ddd79974f6a6f0bc12bed4ff33
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.12"

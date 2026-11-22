@@ -47,17 +47,37 @@ def main():
             }
         ).encode(),
     }
+    base_catalog = json.loads((ROOT / "fixtures/flight-catalog.json").read_text())
+    input_schema = base_catalog["contracts"][0]["input"]["representations"][0][
+        "schema"
+    ]["inline"]
+    output_schema = base_catalog["contracts"][0]["output"]["representations"][0][
+        "schema"
+    ]["inline"]
+    docs["/flight-input.json"] = json.dumps(input_schema).encode()
+    docs["/flight-output.json"] = json.dumps(output_schema).encode()
+    catalogs = {}
     requests = []
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):
             requests.append(self.path)
-            body = docs.get(self.path)
+            hostname = self.headers.get("Host", "").split(":", 1)[0]
+            body = (
+                catalogs.get(hostname)
+                if self.path == "/catalog.json"
+                else docs.get(self.path)
+            )
             if body is None:
                 self.send_error(404)
                 return
             self.send_response(200)
-            self.send_header("Content-Type", "application/schema+json")
+            self.send_header(
+                "Content-Type",
+                "application/json"
+                if self.path == "/catalog.json"
+                else "application/schema+json",
+            )
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -89,26 +109,45 @@ def main():
                     "mediaType": "application/json",
                     "schema": schema,
                 }
-                catalog = {
-                    "contracts": [
-                        {
-                            "id": "urn:reference:external-echo:1",
-                            "input": {
-                                "presence": "required",
-                                "representations": [representation],
-                            },
-                            "output": {
-                                "presence": "required",
-                                "representations": [representation],
-                            },
-                        }
-                    ]
-                }
+                catalog = json.loads(json.dumps(base_catalog))
+                for contract in catalog["contracts"]:
+                    for direction in ("input", "output"):
+                        for rep in contract[direction].get("representations", []):
+                            if "schema" in rep:
+                                path = (
+                                    "/flight-input.json"
+                                    if direction == "input"
+                                    else "/flight-output.json"
+                                )
+                                rep["schema"] = {
+                                    "dialect": "https://json-schema.org/draft/2020-12/schema",
+                                    "mediaType": "application/schema+json",
+                                    "uri": origin + path,
+                                    "integrity": pins[origin + path],
+                                }
+                catalog["contracts"].append(
+                    {
+                        "id": "urn:reference:external-echo:1",
+                        "input": {
+                            "presence": "required",
+                            "representations": [representation],
+                        },
+                        "output": {
+                            "presence": "required",
+                            "representations": [representation],
+                        },
+                    }
+                )
+                catalog_body = json.dumps(
+                    catalog, separators=(",", ":"), ensure_ascii=False
+                ).encode()
+                catalogs[hostname] = catalog_body
+                pins[origin + "/catalog.json"] = pin(catalog_body)
                 catalog_path, pins_path = (
                     directory / f"{side}-catalog.json",
                     directory / f"{side}-pins.json",
                 )
-                catalog_path.write_text(json.dumps(catalog))
+                catalog_path.write_bytes(catalog_body)
                 pins_path.write_text(json.dumps(pins))
                 configurations[side] = {
                     "origin": origin,
@@ -142,8 +181,19 @@ def main():
             )
             if result.returncode:
                 raise RuntimeError("External profile failed; inspect report")
-            if "/root.json" not in requests or "/types.json" not in requests:
-                raise RuntimeError("Fixture did not serve both schema resources")
+            if any(
+                path not in requests
+                for path in (
+                    "/catalog.json",
+                    "/root.json",
+                    "/types.json",
+                    "/flight-input.json",
+                    "/flight-output.json",
+                )
+            ):
+                raise RuntimeError(
+                    "Fixture did not serve the catalog and all schema resources"
+                )
     finally:
         server.shutdown()
         server.server_close()

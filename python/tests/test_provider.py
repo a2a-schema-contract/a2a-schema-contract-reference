@@ -156,6 +156,34 @@ class ProviderTests(unittest.IsolatedAsyncioTestCase):
                     await process.wait()
                     self.fail("provider did not exit after termination")
 
+    async def test_external_catalog_fixture_requires_evidence(self):
+        process = await asyncio.create_subprocess_exec(
+            sys.executable,
+            "-m",
+            "a2a_schema_contract_reference.server",
+            "--catalog",
+            str(CATALOG),
+            "--fixture-origin",
+            "https://127.0.0.1:443",
+            "--fixture-catalog-reference",
+            "https://127.0.0.1:443/catalog.json",
+            env={
+                key: value
+                for key, value in os.environ.items()
+                if key != "REFERENCE_EVIDENCE"
+            },
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            stdout, _ = await asyncio.wait_for(process.communicate(), timeout=10)
+            self.assertNotEqual(process.returncode, 0)
+            self.assertNotIn(b'"type": "ready"', stdout)
+        finally:
+            if process.returncode is None:
+                process.kill()
+                await process.wait()
+
     async def test_dishonest_peer_cannot_publish_invalid_result(self):
         # Reuse the actual agent's card, but independently construct the JSON-RPC
         # response a dishonest peer might send. The client must validate wire data.

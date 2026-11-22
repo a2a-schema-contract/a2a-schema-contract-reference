@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,6 +48,51 @@ test(
       assert.match(diagnostic, /SHA-256 mismatch; no installation attempted/);
       assert.equal(await readFile(lockUrl, 'utf8'), beforeLock);
       assert.equal(await readFile(sdkUrl, 'utf8'), beforeSDK);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  },
+);
+
+test(
+  'a stale lockfile rejects the correct artifact before any installation',
+  { timeout: 5000 },
+  async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'reference-stale-lock-'));
+    try {
+      await mkdir(join(dir, 'scripts'));
+      for (const filename of ['install-artifact.mjs', 'process.mjs'])
+        await cp(
+          new URL('../scripts/' + filename, import.meta.url),
+          join(dir, 'scripts', filename),
+        );
+      await cp(
+        new URL('../artifact-input.json', import.meta.url),
+        join(dir, 'artifact-input.json'),
+      );
+      const lock = JSON.parse(
+        await readFile(new URL('../package-lock.json', import.meta.url), 'utf8'),
+      );
+      lock.packages['node_modules/a2a-schema-contract'].integrity = 'sha512-stale';
+      await writeFile(join(dir, 'package-lock.json'), JSON.stringify(lock));
+      const child = spawn(process.execPath, [join(dir, 'scripts/install-artifact.mjs')], {
+        env: {
+          ...process.env,
+          SDK_ARTIFACT: fileURLToPath(new URL('../artifacts/sdk.tgz', import.meta.url)),
+        },
+        stdio: ['ignore', 'ignore', 'pipe'],
+      });
+      let diagnostic = '';
+      child.stderr.on('data', (chunk) => {
+        diagnostic += chunk.toString();
+      });
+      const code = await new Promise((resolve, reject) => {
+        child.once('error', reject);
+        child.once('exit', resolve);
+      });
+      assert.equal(code, 1);
+      assert.match(diagnostic, /lockfile integrity; no installation attempted/);
+      await assert.rejects(readFile(join(dir, 'artifacts/sdk.tgz')), { code: 'ENOENT' });
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

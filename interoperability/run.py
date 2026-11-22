@@ -50,7 +50,7 @@ def run(args):
             if args.discovery
             else "dishonest-output-v1"
             if args.dishonest
-            else "external-transitive-v1"
+            else "external-catalog-discovery-v1"
             if args.external_config
             else manifest["profile"]
         ),
@@ -158,6 +158,8 @@ def run(args):
                         config["ca"],
                         "--fixture-pins",
                         config["pins"],
+                        "--fixture-catalog-reference",
+                        config["origin"] + "/catalog.json",
                     ]
                 )
             env = {**clean_env, "REFERENCE_EVIDENCE": "1", "REFERENCE_PORT": "0"}
@@ -166,6 +168,11 @@ def run(args):
                 env["REFERENCE_CATALOG_JSON"] = Path(config["catalog"]).read_text()
                 env["REFERENCE_RESOLVER_ORIGIN"] = config["origin"]
                 env["REFERENCE_RESOLVER_PINS_JSON"] = Path(config["pins"]).read_text()
+                env["REFERENCE_CATALOG_URI"] = config["origin"] + "/catalog.json"
+            if external:
+                env["REFERENCE_SKILLS_JSON"] = (
+                    ROOT / "interoperability/discovery-skills.json"
+                ).read_text()
             if args.discovery:
                 env["REFERENCE_CATALOG_JSON"] = catalog_path.read_text()
                 env["REFERENCE_SKILLS_JSON"] = (

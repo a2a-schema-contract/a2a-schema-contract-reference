@@ -36,6 +36,9 @@ def main():
             args.report,
         )
     )
+    expected = json.loads((ROOT / "python/artifact-input.json").read_text())
+    if hashlib.sha256(sdk.read_bytes()).hexdigest() != expected["sdkWheelSha256"]:
+        raise ValueError("Python SDK wheel SHA-256 does not match the reviewed pin")
     with tempfile.TemporaryDirectory(prefix="a2a-parity-consumer-") as name:
         consumer = Path(name)
         # Snapshot inputs so concurrent builds cannot change bytes under this run.

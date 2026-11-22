@@ -3,8 +3,9 @@
 These independent applications install `a2a-schema-contract@0.1.0-rc.1`
 from a hash-verified npm tarball. They use public imports only. No SDK checkout,
 workspace schemas, npm link, cloud account or model credentials are required.
-Node 22 >=22.23.3 or 24 >=24.21.0, npm, and ESM are supported. Current candidate evidence is recorded in the developer-experience report.
-Python remains planned.
+Node 22 >=22.23.3 or 24 >=24.21.0, npm, ESM and the `tar` command are required.
+Current candidate evidence is recorded in the developer-experience report. The
+[Python reference](../python/README.md) and joint parity suite are in progress.
 
 From `js/`, using a supported Node runtime:
 
@@ -19,7 +20,7 @@ npm run check:clean
 ```
 
 To build the accepted tarball from public source, follow the
-[repository quickstart](../README.md#get-started). It checks out the exact SDK
+[repository quickstart](../README.md#node-quickstart). It checks out the exact SDK
 revision from `artifact-input.json`; a tarball built from the SDK's current main
 branch will have a different hash and is refused by this checkpoint.
 
@@ -28,7 +29,9 @@ The application never imports SDK sources. `artifact-input.json` records the
 accepted version, SHA-256, SDK revision and contract revision. A mismatched hash
 fails before npm runs. The installer writes the verified bytes to `artifacts/sdk.tgz`, then runs
 `npm ci --ignore-scripts`. The lock includes the SDK and its complete dependency
-graph through that stable relative tarball path, with npm integrity checks.
+graph through that stable relative tarball path, with npm integrity checks. It
+also checks the lockfile against the tarball and compares every installed SDK
+file with the extracted reviewed archive, detecting stale npm cache reuse.
 No machine-specific SDK path is saved. Stage the artifact with `artifact:install`
 before running any installation on a fresh checkout.
 A future released version can be packed with `npm pack package@version`; update

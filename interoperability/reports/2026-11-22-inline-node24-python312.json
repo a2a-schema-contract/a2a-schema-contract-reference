@@ -1,0 +1,1171 @@
+{
+  "profile": "inline-json-text",
+  "manifest_sha256": "ea58cf8db5a7c07953d89d5b25505a164388ba22f8b724ddcc018476bc8ca071",
+  "catalog_sha256": "2876e1c89c1422114d1ae34d2ff7418cedb2c8dec1469a35967fd259cad9cc80",
+  "pairings": [
+    {
+      "client": "node",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "invoice-json-discovery",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "invoice-compact-selection",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "compact",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "json-to-text",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "text-to-json",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "empty-text-to-json",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "media-negotiation",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "same-media-companions",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "standalone-message",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "message",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-False-output-False",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-False-output-True",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-True-output-False",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-True-output-True",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-false",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-zero",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-string",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-array",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-object",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-nested-array-null",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-nested-object-null",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "text-empty",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "boolean-schema-true",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "root-null-refused",
+          "outcome": "PASS",
+          "diagnostic": "UNSUPPORTED_CARRIER",
+          "executions": 0
+        },
+        {
+          "id": "boolean-schema-false",
+          "outcome": "PASS",
+          "diagnostic": "INSTANCE_INVALID",
+          "executions": 0
+        },
+        {
+          "id": "required-absence",
+          "outcome": "PASS",
+          "diagnostic": "PAYLOAD_PRESENCE_VIOLATION",
+          "executions": 0
+        },
+        {
+          "id": "none-input-refused",
+          "outcome": "PASS",
+          "diagnostic": "REPRESENTATION_NOT_SUPPORTED",
+          "executions": 0
+        },
+        {
+          "id": "atomic-companion-stream",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "sse"
+        },
+        {
+          "id": "input-required-continuation",
+          "outcome": "PASS",
+          "executions": 2,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "continuation"
+        },
+        {
+          "id": "no-output-companion-stream",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "sse"
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "invoice-json-discovery",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "invoice-compact-selection",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "compact",
+          "executions": 1
+        },
+        {
+          "id": "json-to-text",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "text-to-json",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "empty-text-to-json",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "media-negotiation",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "same-media-companions",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "standalone-message",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "presence-required-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-required-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-required-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-none-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-none-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-none-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-False-output-False",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-False-output-True",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "optional-input-True-output-False",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-True-output-True",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-false",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-zero",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-string",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-array",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-object",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-nested-array-null",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-nested-object-null",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "text-empty",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "boolean-schema-true",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "root-null-refused",
+          "outcome": "FAIL",
+          "diagnostic": "Node carrier returned ContentTypeNotSupportedError rather than Python local refusal"
+        },
+        {
+          "id": "boolean-schema-false",
+          "outcome": "PASS",
+          "diagnostic": "INSTANCE_INVALID",
+          "executions": 0
+        },
+        {
+          "id": "required-absence",
+          "outcome": "PASS",
+          "diagnostic": "PAYLOAD_PRESENCE_VIOLATION",
+          "executions": 0
+        },
+        {
+          "id": "none-input-refused",
+          "outcome": "PASS",
+          "diagnostic": "REPRESENTATION_NOT_SUPPORTED",
+          "executions": 0
+        },
+        {
+          "id": "atomic-companion-stream",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "input-required-continuation",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 2
+        },
+        {
+          "id": "no-output-companion-stream",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        }
+      ]
+    },
+    {
+      "client": "node",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "invoice-json-discovery",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "invoice-compact-selection",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "compact",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "json-to-text",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "text-to-json",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "empty-text-to-json",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "media-negotiation",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "same-media-companions",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "standalone-message",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "message",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-required-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-optional-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-required",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-optional",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "presence-none-none",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-False-output-False",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-False-output-True",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-True-output-False",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "optional-input-True-output-True",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-false",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-zero",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-string",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-array",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-object",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-nested-array-null",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "schemaless-nested-object-null",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "text-empty",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "text",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "boolean-schema-true",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "json",
+          "state": "completed",
+          "transport": "http"
+        },
+        {
+          "id": "root-null-refused",
+          "outcome": "PASS",
+          "diagnostic": "UNSUPPORTED_CARRIER",
+          "executions": 0
+        },
+        {
+          "id": "boolean-schema-false",
+          "outcome": "PASS",
+          "diagnostic": "INSTANCE_INVALID",
+          "executions": 0
+        },
+        {
+          "id": "required-absence",
+          "outcome": "PASS",
+          "diagnostic": "PAYLOAD_PRESENCE_VIOLATION",
+          "executions": 0
+        },
+        {
+          "id": "none-input-refused",
+          "outcome": "PASS",
+          "diagnostic": "REPRESENTATION_NOT_SUPPORTED",
+          "executions": 0
+        },
+        {
+          "id": "atomic-companion-stream",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "sse"
+        },
+        {
+          "id": "input-required-continuation",
+          "outcome": "PASS",
+          "executions": 2,
+          "present": true,
+          "representationId": "rich",
+          "state": "completed",
+          "transport": "continuation"
+        },
+        {
+          "id": "no-output-companion-stream",
+          "outcome": "PASS",
+          "executions": 1,
+          "present": false,
+          "state": "completed",
+          "transport": "sse"
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "invoice-json-discovery",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "invoice-compact-selection",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "compact",
+          "executions": 1
+        },
+        {
+          "id": "json-to-text",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "text-to-json",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "empty-text-to-json",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "media-negotiation",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "same-media-companions",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "standalone-message",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "presence-required-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-required-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-required-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-optional-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-none-required",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "presence-none-optional",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "presence-none-none",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-False-output-False",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-False-output-True",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "optional-input-True-output-False",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        },
+        {
+          "id": "optional-input-True-output-True",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-false",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-zero",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-string",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-array",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-object",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-nested-array-null",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "schemaless-nested-object-null",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "text-empty",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "text",
+          "executions": 1
+        },
+        {
+          "id": "boolean-schema-true",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "json",
+          "executions": 1
+        },
+        {
+          "id": "root-null-refused",
+          "outcome": "FAIL",
+          "diagnostic": "Python accepts root null rather than refusing locally"
+        },
+        {
+          "id": "boolean-schema-false",
+          "outcome": "PASS",
+          "diagnostic": "INSTANCE_INVALID",
+          "executions": 0
+        },
+        {
+          "id": "required-absence",
+          "outcome": "PASS",
+          "diagnostic": "PAYLOAD_PRESENCE_VIOLATION",
+          "executions": 0
+        },
+        {
+          "id": "none-input-refused",
+          "outcome": "PASS",
+          "diagnostic": "REPRESENTATION_NOT_SUPPORTED",
+          "executions": 0
+        },
+        {
+          "id": "atomic-companion-stream",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 1
+        },
+        {
+          "id": "input-required-continuation",
+          "outcome": "PASS",
+          "present": true,
+          "representationId": "rich",
+          "executions": 2
+        },
+        {
+          "id": "no-output-companion-stream",
+          "outcome": "PASS",
+          "present": false,
+          "representationId": null,
+          "executions": 1
+        }
+      ]
+    }
+  ],
+  "python_version": "Python 3.12.13",
+  "node_version": "v24.21.0",
+  "python_sdk_wheel_sha256": "733972feac765fefc8706cc32e14bf6fa071cedbfb883798a2984640ff87f400",
+  "node_sdk_tarball_sha256": "3b91182783d0789926b96d3ef926398780f1b7eafa36bf82ead674d58923aa15",
+  "diagnostic_explicit_default": false,
+  "complete_manifest": true,
+  "result": "FAIL",
+  "reference_wheel_sha256": "b41e9b9c51d3f98186b60f92a1db1509293879ed5cfa4ae81a7332eb674a7afc"
+}

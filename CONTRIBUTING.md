@@ -10,9 +10,9 @@ Keep the reference independent of SDK internals. Application code imports public
 installed-package paths. Domain catalogs and expected scenario outcomes belong
 in `fixtures/`; assertions should establish behavior, values, execution timing
 and cleanup. Normative extension changes belong in the
-[specification repository](https://github.com/shashikanth-gs/a2a-schema-contract).
+[specification repository](https://github.com/a2a-schema-contract/a2a-schema-contract).
 Reusable validation changes belong in the
-[SDK repository](https://github.com/shashikanth-gs/a2a-schema-contract-sdk).
+[SDK repository](https://github.com/a2a-schema-contract/a2a-schema-contract-sdk).
 
 Use `npm run format` for formatting. Follow the committed lockfile and keep the
 artifact's version, source revision and SHA-256 in `js/artifact-input.json` aligned.

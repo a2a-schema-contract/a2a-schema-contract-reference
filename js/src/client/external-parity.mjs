@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { discoverContractClient } from 'a2a-schema-contract/client';
+import { EXTENSION_URI } from 'a2a-schema-contract/core';
 import { createContractResolver } from 'a2a-schema-contract/resolver';
 
 const [url, origin, caPath, pinsPath] = process.argv.slice(2);
@@ -15,6 +16,28 @@ const options = {
 const resolver = createContractResolver({ ...options, resourceIntegrity: pins });
 const client = await discoverContractClient(url, { resolver });
 try {
+  const params = client.card.capabilities.extensions.find(
+    (item) => item.uri === EXTENSION_URI,
+  ).params;
+  assert.equal(params.catalog.uri, origin + '/catalog.json');
+  const discovery = await client.describe();
+  assert.deepEqual(
+    discovery.skills.map((skill) => skill.contracts.length),
+    [4, 2, 0],
+  );
+  assert.equal(discovery.unassociated.length, 2);
+  assert.deepEqual(discovery.staleAssociations, [
+    { contractId: 'urn:reference:flight-search:5', skillId: 'missing-skill' },
+  ]);
+  const flightSchema = client.catalog.schema('urn:reference:flight-search:1', 'input', 'json');
+  assert.deepEqual(flightSchema.documents[0].value.required, ['origin', 'destination']);
+  const flight = await client.invokeContract({
+    contractId: 'urn:reference:flight-search:1',
+    input: { origin: 'BLR', destination: 'DEL' },
+  });
+  assert.deepEqual(flight.payload.value, {
+    flights: [{ flightNumber: 'REF101', origin: 'BLR', destination: 'DEL' }],
+  });
   const id = 'urn:reference:external-echo:1';
   const schema = client.catalog.schema(id, 'input', 'json');
   assert.equal(schema.documents.length, 2);

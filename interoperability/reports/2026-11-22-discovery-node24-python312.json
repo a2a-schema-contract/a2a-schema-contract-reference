@@ -1,0 +1,55 @@
+{
+  "profile": "inline-skill-discovery-v1",
+  "manifest_sha256": "ea58cf8db5a7c07953d89d5b25505a164388ba22f8b724ddcc018476bc8ca071",
+  "catalog_sha256": "75d079eb60034a68012b454686fabb2792b568cb86f8e9e4de6468d5d01ecae9",
+  "pairings": [
+    {
+      "client": "node",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "skill-discovery",
+          "outcome": "PASS"
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "node",
+      "scenarios": [
+        {
+          "id": "skill-discovery",
+          "outcome": "PASS"
+        }
+      ]
+    },
+    {
+      "client": "node",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "skill-discovery",
+          "outcome": "PASS"
+        }
+      ]
+    },
+    {
+      "client": "python",
+      "server": "python",
+      "scenarios": [
+        {
+          "id": "skill-discovery",
+          "outcome": "PASS"
+        }
+      ]
+    }
+  ],
+  "python_version": "Python 3.12.13",
+  "node_version": "v24.21.0",
+  "python_sdk_wheel_sha256": "733972feac765fefc8706cc32e14bf6fa071cedbfb883798a2984640ff87f400",
+  "node_sdk_tarball_sha256": "3b91182783d0789926b96d3ef926398780f1b7eafa36bf82ead674d58923aa15",
+  "diagnostic_explicit_default": false,
+  "complete_manifest": true,
+  "result": "PASS",
+  "reference_wheel_sha256": "b41e9b9c51d3f98186b60f92a1db1509293879ed5cfa4ae81a7332eb674a7afc"
+}

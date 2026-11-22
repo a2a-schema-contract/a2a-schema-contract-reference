@@ -76,9 +76,19 @@ That difference is outside the shared carrier profile and remains a reported
 failure in these full-manifest reports. The reports omit local absolute import
 paths and error traces; they retain individual outcomes and verified SDK hashes.
 
+The [November 22 reports](reports/) repeat the unmodified inline manifest with
+Node SDK tarball SHA-256 `3b91182783d0789926b96d3ef926398780f1b7eafa36bf82ead674d58923aa15`,
+Python SDK wheel SHA-256 `733972feac765fefc8706cc32e14bf6fa071cedbfb883798a2984640ff87f400`,
+and Python reference wheel SHA-256 `b41e9b9c51d3f98186b60f92a1db1509293879ed5cfa4ae81a7332eb674a7afc`.
+On macOS arm64, Node 24.21.0 and CPython 3.12.13, Node clients passed 37/37
+against both servers and Python clients passed 36/37, with the same root-null
+difference. Fresh temporary artifact consumers also passed all four pairings for
+64 generated cases and for cancellation, embedded discovery, dishonest output,
+and externally advertised pinned catalogs with skill discovery and transitive
+schema integrity. These focused profiles are not a full interoperability gate.
+
 These reports describe a local development artifact, not a release gate: broader
 interpreter/OS coverage and four-pairing disconnect cancellation, broader
-malformed-peer cases, generated-case breadth and external catalog advertisement
-and skill-discovery checks
-remain outstanding. Server shutdown on Windows also needs a verified
-graceful-control path.
+malformed-peer cases and generated-case breadth remain outstanding. Server
+shutdown on Windows also needs a verified graceful-control path for all pairing
+profiles.

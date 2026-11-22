@@ -65,6 +65,6 @@ including after resolver-cache clearing.
 
 External advertisement uses the SDK's acquired-catalog reference and
 `catalogDelivery: 'external'`; the provider does not replace extension params
-after construction. [The SDK binding guide](https://github.com/shashikanth-gs/a2a-schema-contract-sdk/blob/codex/m3-node-release-candidate/docs/metadata-binding.md)
+after construction. [The SDK binding guide](https://github.com/a2a-schema-contract/a2a-schema-contract-sdk/blob/codex/m3-node-release-candidate/docs/metadata-binding.md)
 defines operation, primary Part and result metadata placement. Python parity,
 framework adapters and model schema conversion remain separate work.

@@ -19,9 +19,9 @@ performs the corresponding Node gate. Their builds need access to package
 dependencies. Local-artifact intake avoids a published SDK registry package but
 is not, by itself, a fully offline dependency installation.
 
-The [Python hosted matrix](https://github.com/shashikanth-gs/a2a-schema-contract-reference/actions/runs/44661315021)
+The [Python hosted matrix](https://github.com/a2a-schema-contract/a2a-schema-contract-reference/actions/runs/44661315021)
 passed at reference `70fbbe4` with the pinned Python SDK wheel; the
-[Node candidate matrix](https://github.com/shashikanth-gs/a2a-schema-contract-reference/actions/runs/44661314796)
+[Node candidate matrix](https://github.com/a2a-schema-contract/a2a-schema-contract-reference/actions/runs/44661314796)
 passed at that same reference revision with its then-current Node SDK pin.
 Subsequent artifact-pin changes require fresh checks; consult current run results
 and do not reuse old receipts for new bytes. The latest generated parity workflow
